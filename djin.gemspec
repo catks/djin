@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["carlos.atks@gmail.com"]
 
   spec.summary       = %q{djin is a make-like utility for docker containers}
-  #spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.homepage      = "https://github.com/catks/djin"
   spec.license       = "MIT"
 
   # spec.metadata["homepage_uri"] = spec.homepage

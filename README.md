@@ -1,28 +1,36 @@
 # Djin
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/djin`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'djin'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Djin is distributed as a Ruby Gem, to install simple run:
 
     $ gem install djin
 
 ## Usage
 
-TODO: Write usage instructions here
+To use djin first you need to create a djin.yml file:
+
+```yaml
+# With a docker image
+script:
+  docker:
+    image: "ruby:2.6"
+    run:
+      commands:
+        - "ruby /scripts/my_ruby_script.rb"
+      options: "--rm -v $(pwd)/my_ruby_script.rb:/scripts/my_ruby_script.rb"
+
+# Using a docker-compose service
+test:
+  docker-compose:
+    service: app
+    run:
+      command: rspec
+      options: "--rm"
+
+```
+
+After that you can run djin {{task_name}}, like djin script or djin test
 
 ## Development
 
@@ -30,9 +38,14 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
+# TODO:
+
+1. Add depends_on to run dependent tasks
+2. Adds a -f option to load custom djin files
+
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/djin.
+Bug reports and pull requests are welcome on GitHub at https://github.com/catks/djin.
 
 ## License
 

@@ -11,6 +11,15 @@ test:
       command: rspec
       options: "--rm"
 
+script:
+  docker:
+    image: "ruby:2.6"
+    run:
+      commands:
+        - "ruby /scripts/my_ruby_script.rb"
+      options: "--rm -v $(pwd)/my_ruby_script.rb:/scripts/my_ruby_script.rb"
+
+
 with_build:
   docker:
     build: .

@@ -4,3 +4,4 @@ test:
     run:
       commands: "cd /usr/src/djin && rspec"
       options: "--rm --entrypoint=''"
+
