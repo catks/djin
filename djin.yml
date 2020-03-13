@@ -4,4 +4,10 @@ test:
     run:
       commands: "cd /usr/src/djin && rspec"
       options: "--rm --entrypoint=''"
+sh:
+  docker-compose:
+    service: app
+    run:
+      commands: "sh"
+      options: "--rm --entrypoint=''"
 

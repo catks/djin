@@ -8,7 +8,7 @@ test:
   docker-compose:
     service: app
     run:
-      command: rspec
+      commands: rspec
       options: "--rm"
 
 script:
