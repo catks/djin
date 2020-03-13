@@ -1,0 +1,18 @@
+---
+default:
+  docker:
+    image: "ruby:2.5"
+    run:
+      - "ruby -e 'puts \\\" Hello\\\"'"
+test:
+  docker-compose:
+    service: app
+    run:
+      command: rspec
+      options: "--rm"
+
+with_build:
+  docker:
+    build: .
+    run:
+      - "ruby -e 'puts \" Hello\"'"

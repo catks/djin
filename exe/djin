@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/djin'
+
+Djin.load_tasks!
+
+Dry::CLI.new(Djin::CLI).call
