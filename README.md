@@ -6,6 +6,16 @@ Djin is distributed as a Ruby Gem, to install simple run:
 
     $ gem install djin
 
+### With Rbenv
+
+If you use Rbenv you can install djin only once and create a alias in your .basrc, .zshrc, etc:
+
+#### ZSH
+    $ RBENV_VERSION=$(rbenv global) gem install djin && echo "alias djin='RBENV_VERSION=$(rbenv global) djin'" >> ~/.zshrc
+
+### Bash
+    $ RBENV_VERSION=$(rbenv global) gem install djin && echo "alias djin='RBENV_VERSION=$(rbenv global) djin'" >> ~/.bashrc
+
 ## Usage
 
 To use djin first you need to create a djin.yml file:
