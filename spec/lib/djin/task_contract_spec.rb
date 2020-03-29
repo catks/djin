@@ -151,7 +151,7 @@ RSpec.describe Djin::TaskContract do
                 'docker-compose' => {
                   'service' => 'app',
                   'run' => {
-                    'commands' => [%q{ruby -e 'puts "Hello"'}],
+                    'commands' => [%q{ruby -e 'puts "Hello"'}, %q{ruby -e 'puts "Hello"'}],
                     'options' => '--rm'
                   }
                 }
@@ -181,6 +181,55 @@ RSpec.describe Djin::TaskContract do
 
         it 'returns the errors for the fields' do
           expect(validation.errors.map(&:path)).to eq([[:'docker-compose', :service], [:'docker-compose', :run]])
+        end
+      end
+    end
+
+    context 'with a depends_on option' do
+      context 'with docker-compose' do
+        let(:task) do
+          {
+            'docker-compose' => {
+              'service' => 'app',
+              'run' => {
+                'commands' => %q{ruby -e 'puts "Hello"'},
+                'options' => '--rm'
+              }
+            },
+            'depends_on' => ['another']
+          }
+        end
+
+        it 'is expect to be valid' do
+          is_expected.to be_success
+        end
+      end
+
+      context 'with docker' do
+        let(:task) do
+          {
+            'docker' => {
+              'image' => 'ruby:2.5',
+              'run' => [%q{ruby -e 'puts "Hello"'}]
+            },
+            'depends_on' => ['another']
+          }
+        end
+
+        it 'is expect to be valid' do
+          is_expected.to be_success
+        end
+      end
+
+      context 'without docker and docker-compose' do
+        let(:task) do
+          {
+            'depends_on' => ['another', 'one', 'bits']
+          }
+        end
+
+        it 'is expect to be valid' do
+          is_expected.to be_success
         end
       end
     end

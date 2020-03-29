@@ -3,7 +3,8 @@ module Djin
     attribute :name, Types::String
     attribute :description, Types::String.optional.default(nil)
     attribute :build_command, Types::String.optional.default(nil)
-    attribute :command, Types::String
+    attribute :command, Types::String.optional.default(nil)
+    attribute :depends_on, Types::Array.of(Types::String).optional.default([].freeze)
 
     def ==(other)
       name == other.name &&

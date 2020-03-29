@@ -12,6 +12,7 @@ require "djin/interpreter"
 require "djin/executor"
 require "djin/cli"
 require "djin/task_contract"
+require "djin/repositories/task_repository"
 
 module Djin
   class Error < StandardError; end
@@ -20,17 +21,22 @@ module Djin
   def self.load_tasks!(path = Pathname.getwd.join('djin.yml'))
     abort 'Error: djin.yml not found' unless path.exist?
 
-    djin_file = YAML.load(path.read)
-    @tasks = Djin::Interpreter.load!(djin_file)
+    djin_file = YAML.safe_load(path.read, [], [], true)
+    tasks = Djin::Interpreter.load!(djin_file)
 
-    CLI.load_tasks!(@tasks)
+    @task_repository = TaskRepository.new(tasks)
+    CLI.load_tasks!(tasks)
 
   rescue Djin::Interpreter::InvalidSyntax => ex
     abort(ex.message)
   end
 
   def self.tasks
-    @tasks || []
+    task_repository.all
+  end
+
+  def self.task_repository
+    @task_repository ||= TaskRepository.new
   end
 end
 

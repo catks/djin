@@ -1,13 +1,18 @@
+_default_run_options: &default_run_options
+  options: "--rm --entrypoint=''"
+
 test:
   docker-compose:
     service: app
     run:
       commands: "cd /usr/src/djin && rspec"
-      options: "--rm --entrypoint=''"
+      <<: *default_run_options
 sh:
   docker-compose:
     service: app
     run:
       commands: "sh"
-      options: "--rm --entrypoint=''"
+      <<: *default_run_options
+  depends_on:
+    - test
 

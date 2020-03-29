@@ -44,6 +44,34 @@ test:
 
 ```
 
+You can also set task dependencies with depends_on option:
+
+
+```yaml
+_default_run_options: &default_run_options
+  options: "--rm"
+
+"db:create":
+  docker-compose:
+    service: app
+    run:
+      commands: rake db:create
+      <<: *default_run_options
+
+"db:migrate":
+  docker-compose:
+    service: app
+    run:
+      commands: rake db:migrate
+      <<: *default_run_options
+
+"db:setup":
+  depends_on:
+    - "db:create"
+    - "db:migrate"
+
+```
+
 After that you can run `djin {{task_name}}`, like `djin script` or `djin test`
 
 ## Development
@@ -54,8 +82,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## TODO:
 
-1. Add `depends_on` to run dependent tasks
-2. Adds a `-f` option to load custom djin files
+1. Adds a `-f` option to load custom djin files
 
 ## Contributing
 

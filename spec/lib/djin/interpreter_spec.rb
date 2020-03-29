@@ -210,5 +210,41 @@ RSpec.describe Djin::Interpreter do
         end
       end
     end
+
+    context 'with a depends_on option' do
+      let(:params) do
+            {
+              'one' => {
+                'docker' => {
+                  'image' => 'ruby:2.5',
+                  'run' => [%q{ruby -e 'puts "Hello"'}]
+                }
+              },
+              'two' => {
+                'docker-compose' => {
+                  'options' => '-f other_compose.yml',
+                  'service' => 'app',
+                  'run' => {
+                    'commands' => %q{ruby -e 'puts "Hello"'},
+                    'options' => '--rm'
+                  }
+                },
+                'depends_on': ['one']
+              }
+            }
+          end
+
+          it 'load a task with the docker command' do
+            is_expected.to eq([
+              Djin::Task.new(name: 'one',
+                             command: %Q{docker run ruby:2.5 sh -c "ruby -e 'puts \"Hello\"'"}),
+              Djin::Task.new(name: 'two',
+                             command: %Q{docker-compose -f other_compose.yml run --rm app sh -c "ruby -e 'puts \"Hello\"'"},
+                             depends_on: ['one'])
+            ])
+          end
+
+
+    end
   end
 end

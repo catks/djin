@@ -32,14 +32,16 @@ module Djin
       optional(:"docker-compose").filled do
         hash(DockerComposeSchema)
       end
+
+      optional(:depends_on).each(:str?)
     end
 
-    rule(:docker, :"docker-compose") do
-      key.failure('docker or docker-compose key is required') unless values[:docker] || values[:"docker-compose"]
+    rule(:docker, :"docker-compose", :depends_on) do
+      key.failure('docker, docker-compose or depends_on key is required') unless values[:docker] || values[:"docker-compose"] || values[:depends_on]
     end
 
-    rule(:'docker-compose',docker: [:image, :build])  do
-      key.failure('image or build param is required for docker tasks') unless values.dig(:docker, :image) || values.dig(:docker, :build) || values[:'docker-compose']
+    rule(:depends_on, :'docker-compose',docker: [:image, :build])  do
+      key.failure('image or build param is required for docker tasks') unless values.dig(:docker, :image) || values.dig(:docker, :build) || values[:'docker-compose'] || values[:depends_on]
     end
 
     rule(docker: :build) do

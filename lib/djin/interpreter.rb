@@ -8,16 +8,24 @@ module Djin
 
     class << self
       def load!(params)
-        task_params = params.except(*RESERVED_WORDS)
+        tasks_params = params.except(*RESERVED_WORDS).reject { |task| task.start_with?('_') }
         contract = TaskContract.new
 
-        task_params.map do |task_name, options|
+        tasks_params.map do |task_name, options|
           result = contract.call(options)
 
           raise InvalidSyntax, result.errors.to_h if result.failure?
 
           command, build_command = build_commands(options, task_name: task_name)
-          Djin::Task.new(name: task_name, build_command: build_command, command: command)
+
+          task_params = {
+            name: task_name,
+            build_command: build_command,
+            command: command,
+            depends_on: options['depends_on']
+          }.compact
+
+          Djin::Task.new(**task_params)
         end
       end
 
