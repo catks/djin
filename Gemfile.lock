@@ -58,7 +58,7 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (~> 1.5)
     ice_nine (0.11.2)
-    rake (10.5.0)
+    rake (13.0.1)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
@@ -80,7 +80,7 @@ DEPENDENCIES
   bundler (~> 2.0)
   byebug
   djin!
-  rake (~> 10.0)
+  rake (~> 13.0)
   rspec (~> 3.0)
 
 BUNDLED WITH
