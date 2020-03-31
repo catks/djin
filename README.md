@@ -1,5 +1,9 @@
 # Djin
 
+![](https://github.com/catks/djin/workflows/Ruby/badge.svg?branch=master)
+
+Djin is a make-like utility for docker containers
+
 ## Installation
 
 Djin is distributed as a Ruby Gem, to install simple run:
