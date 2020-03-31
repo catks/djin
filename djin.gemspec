@@ -28,6 +28,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "dry-struct", "~> 1.3.0"
   spec.add_dependency "dry-cli", "~> 0.5.0"
   spec.add_dependency "dry-validation", "~> 1.5.0"
+  spec.add_dependency "vseries", "~> 0.1.0"
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"

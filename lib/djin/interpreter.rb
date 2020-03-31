@@ -2,22 +2,37 @@ module Djin
   class Interpreter
     using Djin::HashExtensions
 
-    RESERVED_WORDS = %w[_version _default_options].freeze
+    RESERVED_WORDS = %w[djin_version _default_options].freeze
 
-    InvalidSyntax = Class.new(StandardError)
+    InvalidConfigurationError = Class.new(StandardError)
+    MissingVersionError = Class.new(InvalidConfigurationError)
+    VersionNotSupportedError = Class.new(InvalidConfigurationError)
+    InvalidSyntaxError = Class.new(InvalidConfigurationError)
 
     class << self
       def load!(params)
-        task_params = params.except(*RESERVED_WORDS)
+        version = params['djin_version']
+        raise MissingVersionError, 'Missing djin_version' unless version
+        raise VersionNotSupportedError, "Version #{version} is not supported, use #{Djin::VERSION} or higher" unless version_supported?(version)
+
+        tasks_params = params.except(*RESERVED_WORDS).reject { |task| task.start_with?('_') }
         contract = TaskContract.new
 
-        task_params.map do |task_name, options|
+        tasks_params.map do |task_name, options|
           result = contract.call(options)
 
-          raise InvalidSyntax, result.errors.to_h if result.failure?
+          raise InvalidSyntaxError, result.errors.to_h if result.failure?
 
           command, build_command = build_commands(options, task_name: task_name)
-          Djin::Task.new(name: task_name, build_command: build_command, command: command)
+
+          task_params = {
+            name: task_name,
+            build_command: build_command,
+            command: command,
+            depends_on: options['depends_on']
+          }.compact
+
+          Djin::Task.new(**task_params)
         end
       end
 
@@ -75,6 +90,14 @@ module Djin
         run_command =  run_command.join(' && ') if run_command.is_a?(Array)
 
         [run_command, run_options]
+      end
+
+      def validate_version!(version)
+
+      end
+
+      def version_supported?(version)
+        Vseries::SemanticVersion.new(Djin::VERSION) >= Vseries::SemanticVersion.new(version)
       end
     end
   end
