@@ -3,6 +3,7 @@ require "pathname"
 require "yaml"
 require "dry-struct"
 require "dry-validation"
+require "vseries"
 require "dry/cli"
 require "djin/extensions/hash_extensions"
 require "djin/extensions/custom_predicates"
@@ -27,7 +28,7 @@ module Djin
     @task_repository = TaskRepository.new(tasks)
     CLI.load_tasks!(tasks)
 
-  rescue Djin::Interpreter::InvalidSyntax => ex
+  rescue Djin::Interpreter::InvalidConfigurationError => ex
     abort(ex.message)
   end
 
