@@ -1,4 +1,4 @@
-djin_version: '0.1.1'
+djin_version: '0.2.0'
 
 _default_run_options: &default_run_options
   options: "--rm --entrypoint=''"
@@ -16,5 +16,3 @@ sh:
     run:
       commands: "sh"
       <<: *default_run_options
-  depends_on:
-    - test
