@@ -255,6 +255,27 @@ RSpec.describe Djin::Interpreter do
       end
     end
 
+    context 'with invalid configuration' do
+      context 'in a docker task' do
+        let(:params) do
+          {
+            'djin_version' => Djin::VERSION,
+            'default' => {
+              'docker' => {
+                'run' => [%q{ruby -e 'puts "Hello"'}]
+              }
+            }
+          }
+        end
+
+        it 'exits in error' do
+          expect { load! }.to raise_error(described_class::InvalidSyntaxError) do |error|
+            expect(error.message).to eq("{:default=>{:depends_on=>[\"image or build param is required for docker tasks\"]}}")
+          end
+        end
+      end
+    end
+
     context 'without djin_version' do
       let(:params) do
         {
@@ -290,6 +311,5 @@ RSpec.describe Djin::Interpreter do
         expect { load! }.to raise_error(described_class::VersionNotSupportedError)
       end
     end
-
   end
 end

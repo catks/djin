@@ -21,7 +21,7 @@ module Djin
         tasks_params.map do |task_name, options|
           result = contract.call(options)
 
-          raise InvalidSyntaxError, result.errors.to_h if result.failure?
+          raise InvalidSyntaxError, { task_name.to_sym => result.errors.to_h } if result.failure?
 
           command, build_command = build_commands(options, task_name: task_name)
 
