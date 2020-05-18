@@ -15,7 +15,19 @@ module Djin
         end
 
         register task.name, command
+
+
       end
     end
+
+    class Version < Dry::CLI::Command
+      desc "Prints Djin Version"
+
+      def call(*)
+        puts Djin::VERSION
+      end
+    end
+
+    register '--version', Version, aliases: ['-v']
   end
 end
