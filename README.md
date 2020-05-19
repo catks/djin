@@ -25,7 +25,7 @@ If you use Rbenv you can install djin only once and create a alias in your .basr
 To use djin first you need to create a djin.yml file:
 
 ```yaml
-djin_version: '0.2.0'
+djin_version: '0.3.0'
 
 # With a docker image
 script:
@@ -50,7 +50,7 @@ You can also set task dependencies with depends_on option:
 
 
 ```yaml
-djin_version: '0.2.0'
+djin_version: '0.3.0'
 
 _default_run_options: &default_run_options
   options: "--rm"
