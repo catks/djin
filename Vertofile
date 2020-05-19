@@ -1,0 +1,44 @@
+verto_version '0.8.0'
+
+config {
+  version.prefix = 'v' # Adds a version_prefix
+  git.pull_before_tag_creation = true
+  git.push_after_tag_creation = true
+}
+
+context(branch('master')) {
+  before_command_tag_up {
+    command_options.add(filter: 'release_only')
+  }
+
+  before_tag_creation {
+    version_changes = sh(
+      %q#git log --oneline --decorate  | grep -B 100 -m 1 "tag:" | grep "pull request" | awk '{print $1}' | xargs git show --format='%b' | grep -v Approved | grep -v "^$" | grep -E "^[[:space:]]*\[.*\]" | sed 's/^[[:space:]]*\(.*\)/ * \1/'#, output: false
+     ).output
+
+    puts "---------------------------"
+    version_changes = "## #{new_version} - #{Time.now.strftime('%d/%m/%Y')}\n#{version_changes}\n"
+    exit unless confirm("Create new Realease?\n" \
+      "---------------------------\n" \
+      "#{version_changes}" \
+      "---------------------------\n"
+    )
+
+    # CHANGELOG
+    file('CHANGELOG.md').prepend(version_changes)
+    git!('add CHANGELOG.md')
+
+    file('lib/djin/version.rb').replace(latest_version.to_s, new_version.to_s)
+    git!('add lib/djin/version.rb')
+
+    file('README.md').replace_all(latest_version.to_s, new_version.to_s)
+    git!('add README.md')
+
+    sh!('bundle install')
+    sh!('rake install')
+    git!('add Gemfile.lock')
+
+    git!('commit -m "Bumps Version"')
+  }
+}
+
