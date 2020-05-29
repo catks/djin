@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+Signal.trap("INT") { exit 2 }
+
 require_relative '../lib/djin'
 
 Djin.load_tasks!
