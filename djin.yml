@@ -16,3 +16,11 @@ sh:
     run:
       commands: "sh"
       <<: *default_run_options
+run:
+  docker-compose:
+    service: app
+    run:
+      commands: "sh -c '{{args}}'"
+      <<: *default_run_options
+
+

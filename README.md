@@ -78,6 +78,46 @@ _default_run_options: &default_run_options
 
 After that you can run `djin {{task_name}}`, like `djin script` or `djin test`
 
+## Using Environment variables and custom args in djin.yml run tasks
+
+You can use environment variables using the '{{YOUR_ENV_HERE}}' syntax, like so:
+
+```yaml
+djin_version: '0.3.1'
+
+_default_run_options: &default_run_options
+  options: "--rm"
+
+"db:migrate":
+  docker-compose:
+    service: app
+    run:
+      commands: ENV={{ENV}} rake db:migrate
+      <<: *default_run_options
+
+```
+
+It's also possible to pass custom arguments to the command, wich means is possible to make a djin task act like the command itself:
+
+```yaml
+djin_version: '0.3.1'
+
+_default_run_options: &default_run_options
+  options: "--rm"
+
+"rubocop":
+  docker-compose:
+    service: app
+    run:
+      commands: rubocop {{args}}
+      <<: *default_run_options
+
+```
+
+With that you can pass custom args after `--`, eg: `djin rubocop -- --parallel`, which wil make djin runs `rubocop --parallel` inside the service `app`.
+
+Under the hood djin uses [Mustache](https://mustache.github.io/), so you can use other features like conditionals: `{{#IS_ENABLE}} Enabled {{/IS_ENABLE}}` (for args use the `args?`, eg: {{#args} {{args}} --and-other-thing{{/args?}}), to see more more options you can access this [Link](https://mustache.github.io/mustache.5.html)
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

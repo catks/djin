@@ -1,7 +1,8 @@
 module Djin
   class Executor
-    def initialize(task_repository: Djin.task_repository)
+    def initialize(task_repository: Djin.task_repository, args: [])
       @task_repository = task_repository
+      @args = args
     end
 
     def call(*tasks)
@@ -22,7 +23,15 @@ module Djin
     end
 
     def run(command)
-      system command
+      command_with_args = Mustache.render(command,
+                                          args: @args.join(' '),
+                                          args?: @args.any?,
+                                          **env)
+      system command_with_args
+    end
+
+    def env
+      @env = ENV.to_h.map {|k,v| [k.to_sym, v]}.to_h
     end
   end
 end

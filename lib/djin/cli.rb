@@ -9,14 +9,12 @@ module Djin
 
           define_method(:task) { task }
 
-          def call(**options)
-            Executor.new.call(task)
+          def call(args: [], **)
+            Executor.new(args: args).call(task)
           end
         end
 
         register task.name, command
-
-
       end
     end
 

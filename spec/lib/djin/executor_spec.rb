@@ -1,6 +1,7 @@
 RSpec.describe Djin::Executor do
-  let(:instance) { described_class.new(task_repository: task_repository) }
+  let(:instance) { described_class.new(task_repository: task_repository, args: args) }
   let(:task_repository) { TaskRepository.new }
+  let(:args) { [] }
 
   describe '#call' do
     subject(:call) { instance.call(*tasks) }
@@ -121,6 +122,25 @@ RSpec.describe Djin::Executor do
 
             expect(instance).to_not have_received(:system).with(tasks.first.command)
           end
+        end
+      end
+    end
+
+    context 'with a task that uses args and environment variables' do
+      let(:tasks) { [Djin::Task.new(name: 'test', command: 'ls {{args}} {{#MULTIPLE_FILES}}{{FILES}}{{/MULTIPLE_FILES}}')] }
+      let(:args) { ['-l', '-a'] }
+      let(:files) { 'test test2' }
+
+      before do
+        ENV['FILES'] = files
+        ENV['MULTIPLE_FILES'] = 'true'
+      end
+
+      context 'without build_command' do
+        it 'executes the command' do
+          call
+
+          expect(instance).to have_received(:system).once.with('ls -l -a test test2')
         end
       end
     end
