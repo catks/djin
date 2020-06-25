@@ -5,6 +5,7 @@ require "dry-struct"
 require "dry-validation"
 require "vseries"
 require "dry/cli"
+require "mustache"
 require "djin/extensions/hash_extensions"
 require "djin/extensions/custom_predicates"
 require "djin/entities/types"
@@ -17,12 +18,12 @@ require "djin/repositories/task_repository"
 
 module Djin
   class Error < StandardError; end
-  # Your code goes here...
 
   def self.load_tasks!(path = Pathname.getwd.join('djin.yml'))
     abort 'Error: djin.yml not found' unless path.exist?
 
     djin_file = YAML.safe_load(path.read, [], [], true)
+
     tasks = Djin::Interpreter.load!(djin_file)
 
     @task_repository = TaskRepository.new(tasks)
