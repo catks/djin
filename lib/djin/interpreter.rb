@@ -87,13 +87,9 @@ module Djin
           run_options = run_params['options']
         end
 
-        run_command =  run_command.join(' && ') if run_command.is_a?(Array)
+        run_command = run_command.join(' && ') if run_command.is_a?(Array)
 
         [run_command, run_options]
-      end
-
-      def validate_version!(version)
-
       end
 
       def version_supported?(version)

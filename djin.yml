@@ -7,7 +7,7 @@ test:
   docker-compose:
     service: app
     run:
-      commands: "cd /usr/src/djin && rspec"
+      commands: "cd /usr/src/djin && rspec {{args}}"
       <<: *default_run_options
 
 sh:
