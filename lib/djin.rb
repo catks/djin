@@ -11,6 +11,7 @@ require "djin/extensions/custom_predicates"
 require "djin/entities/types"
 require "djin/entities/task"
 require "djin/interpreter"
+require "djin/template_renderer"
 require "djin/executor"
 require "djin/cli"
 require "djin/task_contract"
@@ -22,9 +23,10 @@ module Djin
   def self.load_tasks!(path = Pathname.getwd.join('djin.yml'))
     abort 'Error: djin.yml not found' unless path.exist?
 
-    djin_file = YAML.safe_load(path.read, [], [], true)
+    rendered_djin_file = TemplateRenderer.render(path.read)
+    djin_config = YAML.safe_load(rendered_djin_file, [], [], true)
 
-    tasks = Djin::Interpreter.load!(djin_file)
+    tasks = Interpreter.load!(djin_config)
 
     @task_repository = TaskRepository.new(tasks)
     CLI.load_tasks!(tasks)
@@ -41,4 +43,3 @@ module Djin
     @task_repository ||= TaskRepository.new
   end
 end
-

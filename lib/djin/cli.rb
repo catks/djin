@@ -9,8 +9,8 @@ module Djin
 
           define_method(:task) { task }
 
-          def call(args: [], **)
-            Executor.new(args: args).call(task)
+          def call(**)
+            Executor.new.call(task)
           end
         end
 
