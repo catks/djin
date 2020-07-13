@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Djin::Executor do
   let(:instance) { described_class.new(task_repository: task_repository) }
   let(:task_repository) { TaskRepository.new }
@@ -19,7 +21,11 @@ RSpec.describe Djin::Executor do
       end
 
       context 'with build_command' do
-        let(:tasks) { [Djin::Task.new(name: 'test', build_command: 'docker build . -t test',  command: 'docker run test')] }
+        let(:tasks) do
+          [Djin::Task.new(name: 'test',
+                          build_command: 'docker build . -t test',
+                          command: 'docker run test')]
+        end
 
         it 'executes the build command' do
           call
@@ -38,7 +44,7 @@ RSpec.describe Djin::Executor do
       let(:tasks) do
         [
           Djin::Task.new(name: 'test', build_command: 'docker build . -t test',  command: 'docker run test'),
-          Djin::Task.new(name: 'test2', build_command: 'docker build . -t test2',  command: 'docker run test2')
+          Djin::Task.new(name: 'test2', build_command: 'docker build . -t test2', command: 'docker run test2')
         ]
       end
 
@@ -65,9 +71,10 @@ RSpec.describe Djin::Executor do
 
         let(:configured_tasks) do
           [
-            Djin::Task.new(name: 'test', build_command: 'docker build . -t test',  command: 'docker run test'),
-            Djin::Task.new(name: 'test1', build_command: 'docker build . -t test1',  command: 'docker run test1'),
-            Djin::Task.new(name: 'test2', build_command: 'docker build . -t test2',  command: 'docker run test2', depends_on: ['test', 'test1'])
+            Djin::Task.new(name: 'test', build_command: 'docker build . -t test', command: 'docker run test'),
+            Djin::Task.new(name: 'test1', build_command: 'docker build . -t test1', command: 'docker run test1'),
+            Djin::Task.new(name: 'test2', build_command: 'docker build . -t test2',
+                           command: 'docker run test2', depends_on: %w[test test1])
           ]
         end
 
@@ -92,9 +99,9 @@ RSpec.describe Djin::Executor do
         context 'without command' do
           let(:configured_tasks) do
             [
-              Djin::Task.new(name: 'test', build_command: 'docker build . -t test',  command: 'docker run test'),
-              Djin::Task.new(name: 'test1', build_command: 'docker build . -t test1',  command: 'docker run test1'),
-              Djin::Task.new(name: 'test2', depends_on: ['test', 'test1'])
+              Djin::Task.new(name: 'test', build_command: 'docker build . -t test', command: 'docker run test'),
+              Djin::Task.new(name: 'test1', build_command: 'docker build . -t test1', command: 'docker run test1'),
+              Djin::Task.new(name: 'test2', depends_on: %w[test test1])
             ]
           end
 
@@ -103,7 +110,7 @@ RSpec.describe Djin::Executor do
           it 'executes the dependent tasks build commands' do
             call
 
-            configured_tasks.select { |t| t.build_command }.each do |task|
+            configured_tasks.select(&:build_command).each do |task|
               expect(instance).to have_received(:system).with(task.build_command).once
             end
           end
@@ -111,7 +118,7 @@ RSpec.describe Djin::Executor do
           it 'executes the dependent tasks commands' do
             call
 
-            configured_tasks.select { |t| t.command }.each do |task|
+            configured_tasks.select(&:command).each do |task|
               expect(instance).to have_received(:system).with(task.command).once
             end
           end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Djin
   class CLI
     extend Dry::CLI::Registry
@@ -19,7 +21,7 @@ module Djin
     end
 
     class Version < Dry::CLI::Command
-      desc "Prints Djin Version"
+      desc 'Prints Djin Version'
 
       def call(*)
         puts Djin::VERSION

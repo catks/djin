@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Djin::TaskContract do
   let(:instance) { described_class.new }
 
@@ -10,7 +12,7 @@ RSpec.describe Djin::TaskContract do
           {
             'docker' => {
               'image' => 'ruby:2.5',
-              'run' => [%q{ruby -e 'puts "Hello"'}]
+              'run' => [%q(ruby -e 'puts "Hello"')]
             }
           }
         end
@@ -25,8 +27,8 @@ RSpec.describe Djin::TaskContract do
               'docker' => {
                 'image' => 'ruby:2.5',
                 'run' => [
-                  %q{ruby -e 'puts "Hello"'},
-                  %q{ruby -e 'puts "Bye"'},
+                  %q(ruby -e 'puts "Hello"'),
+                  %q(ruby -e 'puts "Bye"')
                 ]
               }
             }
@@ -43,7 +45,7 @@ RSpec.describe Djin::TaskContract do
               'docker' => {
                 'image' => 'ruby:2.5',
                 'run' => {
-                  'commands' => %q{ruby -e 'puts "Hello"'},
+                  'commands' => %q(ruby -e 'puts "Hello"'),
                   'options' => '--rm'
                 }
               }
@@ -60,7 +62,7 @@ RSpec.describe Djin::TaskContract do
                 'docker' => {
                   'image' => 'ruby:2.5',
                   'run' => {
-                    'commands' => [%q{ruby -e 'puts "Hello"'}],
+                    'commands' => [%q(ruby -e 'puts "Hello"')],
                     'options' => '--rm'
                   }
                 }
@@ -90,7 +92,7 @@ RSpec.describe Djin::TaskContract do
         end
 
         it 'returns the errors for the fields' do
-          expect(validation.errors.map(&:path)).to eq([[:docker, :build], [:docker, :run]])
+          expect(validation.errors.map(&:path)).to eq([%i[docker build], %i[docker run]])
         end
       end
     end
@@ -101,7 +103,7 @@ RSpec.describe Djin::TaskContract do
           {
             'docker-compose' => {
               'service' => 'app',
-              'run' => [%q{ruby -e 'puts "Hello"'}]
+              'run' => [%q(ruby -e 'puts "Hello"')]
             }
           }
         end
@@ -116,8 +118,8 @@ RSpec.describe Djin::TaskContract do
               'docker-compose' => {
                 'service' => 'app',
                 'run' => [
-                  %q{ruby -e 'puts "Hello"'},
-                  %q{ruby -e 'puts "Bye"'},
+                  %q(ruby -e 'puts "Hello"'),
+                  %q(ruby -e 'puts "Bye"')
                 ]
               }
             }
@@ -134,7 +136,7 @@ RSpec.describe Djin::TaskContract do
               'docker-compose' => {
                 'service' => 'app',
                 'run' => {
-                  'commands' => %q{ruby -e 'puts "Hello"'},
+                  'commands' => %q(ruby -e 'puts "Hello"'),
                   'options' => '--rm'
                 }
               }
@@ -151,7 +153,7 @@ RSpec.describe Djin::TaskContract do
                 'docker-compose' => {
                   'service' => 'app',
                   'run' => {
-                    'commands' => [%q{ruby -e 'puts "Hello"'}, %q{ruby -e 'puts "Hello"'}],
+                    'commands' => [%q(ruby -e 'puts "Hello"'), %q(ruby -e 'puts "Hello"')],
                     'options' => '--rm'
                   }
                 }
@@ -180,7 +182,7 @@ RSpec.describe Djin::TaskContract do
         end
 
         it 'returns the errors for the fields' do
-          expect(validation.errors.map(&:path)).to eq([[:'docker-compose', :service], [:'docker-compose', :run]])
+          expect(validation.errors.map(&:path)).to eq([%i[docker-compose service], %i[docker-compose run]])
         end
       end
     end
@@ -190,7 +192,7 @@ RSpec.describe Djin::TaskContract do
         let(:task) do
           {
             'local' => {
-              'run' => [%q{ruby -e 'puts "Hello"'}]
+              'run' => [%q(ruby -e 'puts "Hello"')]
             }
           }
         end
@@ -203,7 +205,7 @@ RSpec.describe Djin::TaskContract do
           let(:task) do
             {
               'local' => {
-                'run' => [%q{ruby -e 'puts "Hello"'}, 'pwd']
+                'run' => [%q(ruby -e 'puts "Hello"'), 'pwd']
               }
             }
           end
@@ -218,7 +220,7 @@ RSpec.describe Djin::TaskContract do
             {
               'local' => {
                 'run' => {
-                  'commands' => %q{ruby -e 'puts "Hello"'},
+                  'commands' => %q(ruby -e 'puts "Hello"')
                 }
               }
             }
@@ -233,7 +235,7 @@ RSpec.describe Djin::TaskContract do
               {
                 'local' => {
                   'run' => {
-                    'commands' => [%q{ruby -e 'puts "Hello"'}, %q{ruby -e 'puts "Hello"'}],
+                    'commands' => [%q(ruby -e 'puts "Hello"'), %q(ruby -e 'puts "Hello"')]
                   }
                 }
               }
@@ -260,11 +262,10 @@ RSpec.describe Djin::TaskContract do
         end
 
         it 'returns the errors for the fields' do
-          expect(validation.errors.map(&:path)).to eq([[:local, :run]])
+          expect(validation.errors.map(&:path)).to eq([%i[local run]])
         end
       end
     end
-
 
     context 'with a depends_on option' do
       context 'with docker-compose' do
@@ -273,7 +274,7 @@ RSpec.describe Djin::TaskContract do
             'docker-compose' => {
               'service' => 'app',
               'run' => {
-                'commands' => %q{ruby -e 'puts "Hello"'},
+                'commands' => %q(ruby -e 'puts "Hello"'),
                 'options' => '--rm'
               }
             },
@@ -291,7 +292,7 @@ RSpec.describe Djin::TaskContract do
           {
             'docker' => {
               'image' => 'ruby:2.5',
-              'run' => [%q{ruby -e 'puts "Hello"'}]
+              'run' => [%q(ruby -e 'puts "Hello"')]
             },
             'depends_on' => ['another']
           }
@@ -305,7 +306,7 @@ RSpec.describe Djin::TaskContract do
       context 'without docker and docker-compose' do
         let(:task) do
           {
-            'depends_on' => ['another', 'one', 'bits']
+            'depends_on' => %w[another one bits]
           }
         end
 
@@ -316,4 +317,3 @@ RSpec.describe Djin::TaskContract do
     end
   end
 end
-

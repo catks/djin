@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Djin
   class Interpreter
     class DockerCommandBuilder < BaseCommandBuilder
@@ -16,12 +18,11 @@ module Djin
 
         run_command, run_options = build_run_params(params['run'])
 
-        command = %Q{docker run #{run_options} #{image} sh -c "#{run_command}"}.squeeze(' ')
+        command = %(docker run #{run_options} #{image} sh -c "#{run_command}").squeeze(' ')
 
         build_command = "docker build #{build_context} #{build_options} -t #{image}".squeeze(' ') if build_context
 
         [command, build_command]
-
       end
     end
   end

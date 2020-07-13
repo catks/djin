@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Djin::TemplateRenderer do
   describe '.render' do
     subject { described_class.render(template) }

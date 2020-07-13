@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Djin
   class Task < Dry::Struct
     attribute :name, Types::String

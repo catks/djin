@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module Djin
   class TaskContract < Dry::Validation::Contract
-    NOT_EMPTY = -> (value) { ! value.empty? }
-    OK = -> (_) { true }
-    NOT_OK = -> (_) { false }
+    NOT_EMPTY = ->(value) { !value.empty? }
+    OK = ->(_) { true }
+    NOT_OK = ->(_) { false }
 
     BuildSchema = Dry::Schema.Params do
       required(:context).filled(:string)
@@ -38,11 +40,11 @@ module Djin
       optional(:docker).filled do
         hash(DockerSchema)
       end
-      
+
       optional(:"docker-compose").filled do
         hash(DockerComposeSchema)
       end
-      
+
       optional(:local).filled do
         hash(LocalSchema)
       end
@@ -51,12 +53,17 @@ module Djin
     end
 
     rule(:docker, :"docker-compose", :local, :depends_on) do
-      key.failure('docker, docker-compose, local or depends_on key is required') unless values[:docker] || values[:"docker-compose"] || values[:depends_on] || values[:local]
+      unless values[:docker] || values[:"docker-compose"] || values[:depends_on] || values[:local]
+        key.failure('docker, docker-compose, local or depends_on key is required')
+      end
     end
 
-    rule(:depends_on, :'docker-compose', :local, docker: [:image, :build])  do
-      key.failure('image or build param is required for docker tasks') unless values.dig(:docker, :image) || values.dig(:docker, :build) ||
-        values[:'docker-compose'] || values[:depends_on] || values.dig(:local, :run)
+    rule(:depends_on, :'docker-compose', :local, docker: %i[image build]) do
+      key.failure('image or build param is required for docker tasks') unless values.dig(:docker, :image) ||
+                                                                              values.dig(:docker, :build) ||
+                                                                              values[:'docker-compose'] ||
+                                                                              values[:depends_on] ||
+                                                                              values.dig(:local, :run)
     end
 
     # TODO: Extract validations to command builders
@@ -67,7 +74,7 @@ module Djin
       key.failure(errors) unless result
     end
 
-    rule(:'docker-compose' => :run) do
+    rule('docker-compose': :run) do
       result, errors = validate_for(value, Hash => RunSchema, Array => NOT_EMPTY, NilClass => OK)
 
       key.failure(errors) unless result

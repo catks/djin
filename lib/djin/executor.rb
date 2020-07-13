@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Djin
   class Executor
     def initialize(task_repository: Djin.task_repository)

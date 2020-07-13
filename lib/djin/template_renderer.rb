@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Djin
   class TemplateRenderer
     def self.render(template_file)

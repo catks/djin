@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class TaskRepository
   def initialize(tasks = [])
     @tasks = tasks
