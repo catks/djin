@@ -129,6 +129,7 @@ RSpec.describe Djin::Interpreter do
         end
       end
     end
+
     context 'with a docker-compose command' do
       let(:params) do
         {
@@ -219,6 +220,70 @@ RSpec.describe Djin::Interpreter do
         end
       end
     end
+
+    context 'with a local command' do
+      let(:params) do
+        {
+          'djin_version' => Djin::VERSION,
+          'default' => {
+            'local' => {
+              'run' => [%q{ruby -e 'puts "Hello"'}]
+            }
+          }
+        }
+      end
+
+      it 'load a task with the local command' do
+        is_expected.to eq([
+          Djin::Task.new(name: 'default', command: %Q{ruby -e 'puts \"Hello\"'})
+        ])
+      end
+
+      context 'with multiples commands' do
+        let(:params) do
+          {
+            'djin_version' => Djin::VERSION,
+            'default' => {
+              'local' => {
+                'run' => [
+                  %q{ruby -e 'puts "Hello"'},
+                  %q{ruby -e 'puts "Bye"'},
+                ]
+              }
+            }
+          }
+        end
+
+        it 'load a task with the local command' do
+          is_expected.to eq([
+            Djin::Task.new(name: 'default',
+                           command: %Q{ruby -e 'puts \"Hello\"' && ruby -e 'puts \"Bye\"'})
+          ])
+        end
+      end
+
+      context 'with expanded run form' do
+        let(:params) do
+          {
+            'djin_version' => Djin::VERSION,
+            'default' => {
+              'local' => {
+                'run' => {
+                  'commands' => %q{ruby -e 'puts "Hello"'},
+                }
+              }
+            }
+          }
+        end
+
+        it 'load a task with the local command' do
+          is_expected.to eq([
+            Djin::Task.new(name: 'default', command: %Q{ruby -e 'puts \"Hello\"'})
+          ])
+        end
+      end
+    end
+
 
     context 'with a depends_on option' do
       let(:params) do

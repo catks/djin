@@ -76,11 +76,46 @@ _default_run_options: &default_run_options
 
 ```
 
+Or mix local commands and docker/docker-compose commands:
+
+```yaml
+djin_version: '0.4.0'
+
+_default_run_options: &default_run_options
+  options: "--rm"
+
+"db:create":
+  docker-compose:
+    service: app
+    run:
+      commands: rake db:create
+      <<: *default_run_options
+
+"db:migrate":
+  docker-compose:
+    service: app
+    run:
+      commands: rake db:migrate
+      <<: *default_run_options
+
+"setup:copy_samples":
+  local:
+    run:
+      - cp config/database.yml.sample config/database.yml
+
+"setup":
+  depends_on:
+    - "setup:copy_samples"
+    - "db:create"
+    - "db:migrate"
+
+```
+
 After that you can run `djin {{task_name}}`, like `djin script` or `djin test`
 
 ## Using Environment variables and custom args in djin.yml run tasks
 
-You can use environment variables using the '{{YOUR_ENV_HERE}}' syntax, like so:
+You can also use environment variables using the '{{YOUR_ENV_HERE}}' syntax, like so:
 
 ```yaml
 djin_version: '0.4.0'

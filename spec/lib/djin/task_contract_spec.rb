@@ -94,7 +94,7 @@ RSpec.describe Djin::TaskContract do
         end
       end
     end
-    
+
     context 'with a docker-compose task' do
       context 'with valid params' do
         let(:task) do
@@ -184,6 +184,87 @@ RSpec.describe Djin::TaskContract do
         end
       end
     end
+
+    context 'with a local task' do
+      context 'with valid params' do
+        let(:task) do
+          {
+            'local' => {
+              'run' => [%q{ruby -e 'puts "Hello"'}]
+            }
+          }
+        end
+
+        it 'is expect to be valid' do
+          is_expected.to be_success
+        end
+
+        context 'with multiple commands' do
+          let(:task) do
+            {
+              'local' => {
+                'run' => [%q{ruby -e 'puts "Hello"'}, 'pwd']
+              }
+            }
+          end
+
+          it 'is expect to be valid' do
+            is_expected.to be_success
+          end
+        end
+
+        context 'in expanded form' do
+          let(:task) do
+            {
+              'local' => {
+                'run' => {
+                  'commands' => %q{ruby -e 'puts "Hello"'},
+                }
+              }
+            }
+          end
+
+          it 'is expect to be valid' do
+            is_expected.to be_success
+          end
+
+          context 'with multiple commands' do
+            let(:task) do
+              {
+                'local' => {
+                  'run' => {
+                    'commands' => [%q{ruby -e 'puts "Hello"'}, %q{ruby -e 'puts "Hello"'}],
+                  }
+                }
+              }
+            end
+
+            it 'is expect to be valid' do
+              is_expected.to be_success
+            end
+          end
+        end
+      end
+
+      context 'with invalid params' do
+        let(:task) do
+          {
+            'local' => {
+              'run' => 42
+            }
+          }
+        end
+
+        it 'is expected to be invalid' do
+          is_expected.to be_a_failure
+        end
+
+        it 'returns the errors for the fields' do
+          expect(validation.errors.map(&:path)).to eq([[:local, :run]])
+        end
+      end
+    end
+
 
     context 'with a depends_on option' do
       context 'with docker-compose' do
