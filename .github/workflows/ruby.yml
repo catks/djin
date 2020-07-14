@@ -18,3 +18,17 @@ jobs:
           gem install bundler
           bundle install --jobs 4 --retry 3
           bundle exec rake
+
+  lint:
+    runs-on: ubuntu-16.04
+    name: Lint
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.6'
+      - run: |
+          gem install bundler
+          bundle install --jobs 4 --retry 3
+          bundle exec rubocop
+

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Djin::CLI do
   describe described_class::Version do
     let(:instance) { described_class.new }
@@ -11,4 +13,3 @@ RSpec.describe Djin::CLI do
     end
   end
 end
-

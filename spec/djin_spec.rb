@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 RSpec.describe Djin do
-  it "has a version number" do
+  it 'has a version number' do
     expect(Djin::VERSION).not_to be nil
   end
 
@@ -12,7 +14,7 @@ RSpec.describe Djin do
       it 'exits with a error' do
         expect { load_tasks! }.to raise_error(SystemExit) do |error|
           expect(error.status).to eq(1)
-          expect(error.message).to eq("Error: djin.yml not found")
+          expect(error.message).to eq('Error: djin.yml not found')
         end
       end
     end

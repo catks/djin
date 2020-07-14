@@ -1,25 +1,26 @@
-require "djin/version"
-require "pathname"
-require "yaml"
-require "dry-struct"
-require "dry-validation"
-require "vseries"
-require "dry/cli"
-require "mustache"
-require "djin/extensions/hash_extensions"
-require "djin/extensions/custom_predicates"
-require "djin/entities/types"
-require "djin/entities/task"
-require "djin/interpreter/base_command_builder"
-require "djin/interpreter/docker_command_builder"
-require "djin/interpreter/docker_compose_command_builder"
-require "djin/interpreter/local_command_builder"
-require "djin/interpreter"
-require "djin/template_renderer"
-require "djin/executor"
-require "djin/cli"
-require "djin/task_contract"
-require "djin/repositories/task_repository"
+# frozen_string_literal: true
+
+require 'djin/version'
+require 'pathname'
+require 'yaml'
+require 'dry-struct'
+require 'dry-validation'
+require 'vseries'
+require 'dry/cli'
+require 'mustache'
+require 'djin/extensions/hash_extensions'
+require 'djin/entities/types'
+require 'djin/entities/task'
+require 'djin/interpreter/base_command_builder'
+require 'djin/interpreter/docker_command_builder'
+require 'djin/interpreter/docker_compose_command_builder'
+require 'djin/interpreter/local_command_builder'
+require 'djin/interpreter'
+require 'djin/template_renderer'
+require 'djin/executor'
+require 'djin/cli'
+require 'djin/task_contract'
+require 'djin/repositories/task_repository'
 
 module Djin
   class Error < StandardError; end
@@ -34,9 +35,8 @@ module Djin
 
     @task_repository = TaskRepository.new(tasks)
     CLI.load_tasks!(tasks)
-
-  rescue Djin::Interpreter::InvalidConfigurationError => ex
-    abort(ex.message)
+  rescue Djin::Interpreter::InvalidConfigurationError => e
+    abort(e.message)
   end
 
   def self.tasks

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Djin
   class Interpreter
     using Djin::HashExtensions
@@ -13,7 +15,9 @@ module Djin
       def load!(params)
         version = params['djin_version']
         raise MissingVersionError, 'Missing djin_version' unless version
-        raise VersionNotSupportedError, "Version #{version} is not supported, use #{Djin::VERSION} or higher" unless version_supported?(version)
+        unless version_supported?(version)
+          raise VersionNotSupportedError, "Version #{version} is not supported, use #{Djin::VERSION} or higher"
+        end
 
         tasks_params = params.except(*RESERVED_WORDS).reject { |task| task.start_with?('_') }
         contract = TaskContract.new
@@ -46,7 +50,6 @@ module Djin
 
         # TODO: Refactor to use chain of responsability
         return DockerCommandBuilder.call(docker_params, task_name: task_name) if docker_params
-
         return DockerComposeCommandBuilder.call(docker_compose_params) if docker_compose_params
 
         LocalCommandBuilder.call(local_params) if local_params
