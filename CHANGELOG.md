@@ -1,3 +1,7 @@
+## 0.5.0 - 13/07/2020
+ * [FEATURE] Adds local command task
+ * [FEATURE] Template Args for entire djin.yml
+
 ## 0.4.0 - 25/06/2020
  * [FEATURE] Adds Custom Args and Environment support in djin.yml
 
