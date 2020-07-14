@@ -1,6 +1,7 @@
 # Djin
 
 ![](https://github.com/catks/djin/workflows/Ruby/badge.svg?branch=master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/824a2e78399813543212/maintainability)](https://codeclimate.com/github/catks/djin/maintainability)
 
 Djin is a make-like utility for docker containers
 
@@ -43,7 +44,6 @@ test:
     run:
       commands: rspec
       options: "--rm"
-
 ```
 
 You can also set task dependencies with depends_on option:
@@ -73,7 +73,6 @@ _default_run_options: &default_run_options
   depends_on:
     - "db:create"
     - "db:migrate"
-
 ```
 
 Or mix local commands and docker/docker-compose commands:
@@ -108,7 +107,6 @@ _default_run_options: &default_run_options
     - "setup:copy_samples"
     - "db:create"
     - "db:migrate"
-
 ```
 
 After that you can run `djin {{task_name}}`, like `djin script` or `djin test`
@@ -132,7 +130,7 @@ _default_run_options: &default_run_options
 
 ```
 
-It's also possible to pass custom arguments to the command, wich means is possible to make a djin task act like the command itself:
+It's also possible to pass custom arguments to the command, which means is possible to make a djin task act like the command itself:
 
 ```yaml
 djin_version: '0.5.0'
@@ -151,13 +149,13 @@ _default_run_options: &default_run_options
 
 With that you can pass custom args after `--`, eg: `djin rubocop -- --parallel`, which wil make djin runs `rubocop --parallel` inside the service `app`.
 
-Under the hood djin uses [Mustache](https://mustache.github.io/), so you can use other features like conditionals: `{{#IS_ENABLE}} Enabled {{/IS_ENABLE}}` (for args use the `args?`, eg: {{#args} {{args}} --and-other-thing{{/args?}}), to see more more options you can access this [Link](https://mustache.github.io/mustache.5.html)
+Under the hood djin uses [Mustache](https://mustache.github.io/), so you can use other features like conditionals: `{{#IS_ENABLE}} Enabled {{/IS_ENABLE}}` (for args use the `args?`, eg: `{{#args?} {{args}} --and-other-thing{{/args?}}`), to see more more options you can access this [Link](https://mustache.github.io/mustache.5.html)
 
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, run `djin release -- {{increment_option}}` (where {{incremment_option}} can be `--patch`, `--minor` or `major`), which will change version, update the CHANGELOG.md, create a new commit, create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## TODO:
 

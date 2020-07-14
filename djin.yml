@@ -27,7 +27,7 @@ release:
   local:
     run:
       - verto tag up {{args}}
-      - rake release
+      - bundle exec rake release
 
 
 
