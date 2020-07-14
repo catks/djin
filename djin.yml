@@ -1,4 +1,4 @@
-djin_version: '0.2.0'
+djin_version: '0.4.0'
 
 _default_run_options: &default_run_options
   options: "--rm --entrypoint=''"
@@ -22,5 +22,12 @@ run:
     run:
       commands: "sh -c '{{args}}'"
       <<: *default_run_options
+
+release:
+  local:
+    run:
+      - verto tag up {{args}}
+      - rake release
+
 
 

@@ -1,4 +1,6 @@
 ---
+djin_version: '0.4.0'
+
 default:
   docker:
     image: "ruby:2.5"

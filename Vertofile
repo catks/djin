@@ -29,10 +29,11 @@ context(branch('master')) {
     git!('add CHANGELOG.md')
 
     file('lib/djin/version.rb').replace(latest_version.to_s, new_version.to_s)
-    git!('add lib/djin/version.rb')
-
+    file('djin.yml').replace(latest_version.to_s, new_version.to_s)
+    file('examples/djin.yml').replace(latest_version.to_s, new_version.to_s)
     file('README.md').replace_all(latest_version.to_s, new_version.to_s)
-    git!('add README.md')
+
+    git!('add lib/djin/version.rb djin.yml examples/djin.yml README.md')
 
     sh!('bundle install')
     sh!('rake install')
