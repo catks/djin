@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe Djin::TemplateRenderer do
-  describe '.render' do
-    subject { described_class.render(template) }
+RSpec.describe Djin::ConfigLoader do
+  describe '.load' do
+    subject { described_class.load(template) }
 
     context 'with a template without custom values' do
       let(:template) do
@@ -17,8 +17,8 @@ RSpec.describe Djin::TemplateRenderer do
         }.to_yaml
       end
 
-      it 'returns the same string' do
-        is_expected.to eq(template)
+      it 'returns the template as a hash' do
+        is_expected.to eq(YAML.load(template))
       end
     end
 
@@ -48,7 +48,7 @@ RSpec.describe Djin::TemplateRenderer do
               'run' => ['rubocop -a']
             }
           }
-        }.to_yaml
+        }
         is_expected.to eq(expected_rendered_template)
       end
     end
@@ -80,7 +80,7 @@ RSpec.describe Djin::TemplateRenderer do
                 'run' => ['echo "Hi, I Have args"']
               }
             }
-          }.to_yaml
+          }
           is_expected.to eq(expected_rendered_template)
         end
       end
@@ -99,7 +99,7 @@ RSpec.describe Djin::TemplateRenderer do
                 'run' => ['echo "Hi"']
               }
             }
-          }.to_yaml
+          }
           is_expected.to eq(expected_rendered_template)
         end
       end
@@ -137,7 +137,38 @@ RSpec.describe Djin::TemplateRenderer do
               'run' => ['ls test test2']
             }
           }
+        }
+        is_expected.to eq(expected_rendered_template)
+      end
+    end
+
+    context 'with djin variables' do
+      let(:template) do
+        {
+          'djin_version' => Djin::VERSION,
+          'variables' => {
+            'test_variable' => 'HelloTest'
+          },
+          'default' => {
+            'docker' => {
+              'image' => 'ruby:2.5',
+              'run' => [%q(ruby -e 'puts "{{test_variable}}"')]
+            }
+          }
         }.to_yaml
+      end
+
+      it 'returns the template as a hash' do
+        expected_rendered_template = {
+          'djin_version' => Djin::VERSION,
+          
+          'default' => {
+            'docker' => {
+              'image' => 'ruby:2.5',
+              'run' => [%q(ruby -e 'puts "HelloTest"')]
+            }
+          }
+        }
         is_expected.to eq(expected_rendered_template)
       end
     end

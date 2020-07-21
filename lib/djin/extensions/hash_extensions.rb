@@ -6,6 +6,10 @@ module Djin
       def except(*keys)
         reject { |key, _| keys.include?(key) }
       end
+
+      def symbolize_keys
+        map { |key, value| [key.to_sym, value] }.to_h
+      end
     end
   end
 end

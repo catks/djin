@@ -16,7 +16,7 @@ require 'djin/interpreter/docker_command_builder'
 require 'djin/interpreter/docker_compose_command_builder'
 require 'djin/interpreter/local_command_builder'
 require 'djin/interpreter'
-require 'djin/template_renderer'
+require 'djin/config_loader'
 require 'djin/executor'
 require 'djin/cli'
 require 'djin/task_contract'
@@ -28,9 +28,9 @@ module Djin
   def self.load_tasks!(path = Pathname.getwd.join('djin.yml'))
     abort 'Error: djin.yml not found' unless path.exist?
 
-    rendered_djin_file = TemplateRenderer.render(path.read)
-    djin_config = YAML.safe_load(rendered_djin_file, [], [], true)
+    djin_config = ConfigLoader.load(path.read)
 
+    # TODO: Make all tasks be under 'tasks' key, passing only the tasks here
     tasks = Interpreter.load!(djin_config)
 
     @task_repository = TaskRepository.new(tasks)
