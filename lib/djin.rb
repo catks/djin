@@ -28,7 +28,7 @@ module Djin
   def self.load_tasks!(path = Pathname.getwd.join('djin.yml'))
     abort 'Error: djin.yml not found' unless path.exist?
 
-    djin_config = ConfigLoader.load(path.read)
+    djin_config = ConfigLoader.load!(path.read)
 
     # TODO: Make all tasks be under 'tasks' key, passing only the tasks here
     tasks = Interpreter.load!(djin_config)
