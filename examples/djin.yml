@@ -1,29 +1,29 @@
 ---
 djin_version: '0.5.0'
 
-default:
-  docker:
-    image: "ruby:2.5"
-    run:
-      - "ruby -e 'puts \\\" Hello\\\"'"
-test:
-  docker-compose:
-    service: app
-    run:
-      commands: rspec
-      options: "--rm"
+tasks:
+  default:
+    docker:
+      image: "ruby:2.5"
+      run:
+        - "ruby -e 'puts \\\" Hello\\\"'"
+  test:
+    docker-compose:
+      service: app
+      run:
+        commands: rspec
+        options: "--rm"
 
-script:
-  docker:
-    image: "ruby:2.6"
-    run:
-      commands:
-        - "ruby /scripts/my_ruby_script.rb"
-      options: "--rm -v $(pwd)/my_ruby_script.rb:/scripts/my_ruby_script.rb"
+  script:
+    docker:
+      image: "ruby:2.6"
+      run:
+        commands:
+          - "ruby /scripts/my_ruby_script.rb"
+        options: "--rm -v $(pwd)/my_ruby_script.rb:/scripts/my_ruby_script.rb"
 
-
-with_build:
-  docker:
-    build: .
-    run:
-      - "ruby -e 'puts \" Hello\"'"
+  with_build:
+    docker:
+      build: .
+      run:
+        - "ruby -e 'puts \" Hello\"'"

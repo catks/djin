@@ -7,7 +7,6 @@ RSpec.describe Djin::Interpreter do
     context 'with a docker command' do
       let(:params) do
         {
-          'djin_version' => Djin::VERSION,
           'default' => {
             'docker' => {
               'image' => 'ruby:2.5',
@@ -27,7 +26,6 @@ RSpec.describe Djin::Interpreter do
       context 'with multiples commands' do
         let(:params) do
           {
-            'djin_version' => Djin::VERSION,
             'default' => {
               'docker' => {
                 'image' => 'ruby:2.5',
@@ -52,7 +50,6 @@ RSpec.describe Djin::Interpreter do
       context 'with expanded run form' do
         let(:params) do
           {
-            'djin_version' => Djin::VERSION,
             'default' => {
               'docker' => {
                 'image' => 'ruby:2.5',
@@ -79,7 +76,6 @@ RSpec.describe Djin::Interpreter do
 
           let(:params) do
             {
-              'djin_version' => Djin::VERSION,
               'default' => {
                 'docker' => {
                   'build' => '.',
@@ -109,7 +105,6 @@ RSpec.describe Djin::Interpreter do
 
           let(:params) do
             {
-              'djin_version' => Djin::VERSION,
               'default' => {
                 'docker' => {
                   'build' => {
@@ -141,7 +136,6 @@ RSpec.describe Djin::Interpreter do
     context 'with a docker-compose command' do
       let(:params) do
         {
-          'djin_version' => Djin::VERSION,
           'default' => {
             'docker-compose' => {
               'service' => 'app',
@@ -161,7 +155,6 @@ RSpec.describe Djin::Interpreter do
       context 'with multiples commands' do
         let(:params) do
           {
-            'djin_version' => Djin::VERSION,
             'default' => {
               'docker-compose' => {
                 'service' => 'app',
@@ -186,7 +179,6 @@ RSpec.describe Djin::Interpreter do
       context 'with expanded run form' do
         let(:params) do
           {
-            'djin_version' => Djin::VERSION,
             'default' => {
               'docker-compose' => {
                 'service' => 'app',
@@ -209,7 +201,6 @@ RSpec.describe Djin::Interpreter do
         context 'with docker-compose options' do
           let(:params) do
             {
-              'djin_version' => Djin::VERSION,
               'default' => {
                 'docker-compose' => {
                   'options' => '-f other_compose.yml',
@@ -237,7 +228,6 @@ RSpec.describe Djin::Interpreter do
     context 'with a local command' do
       let(:params) do
         {
-          'djin_version' => Djin::VERSION,
           'default' => {
             'local' => {
               'run' => [%q(ruby -e 'puts "Hello"')]
@@ -255,7 +245,6 @@ RSpec.describe Djin::Interpreter do
       context 'with multiples commands' do
         let(:params) do
           {
-            'djin_version' => Djin::VERSION,
             'default' => {
               'local' => {
                 'run' => [
@@ -278,7 +267,6 @@ RSpec.describe Djin::Interpreter do
       context 'with expanded run form' do
         let(:params) do
           {
-            'djin_version' => Djin::VERSION,
             'default' => {
               'local' => {
                 'run' => {
@@ -300,7 +288,6 @@ RSpec.describe Djin::Interpreter do
     context 'with a depends_on option' do
       let(:params) do
         {
-          'djin_version' => Djin::VERSION,
           'one' => {
             'docker' => {
               'image' => 'ruby:2.5',
@@ -337,7 +324,6 @@ RSpec.describe Djin::Interpreter do
       context 'in a docker task' do
         let(:params) do
           {
-            'djin_version' => Djin::VERSION,
             'default' => {
               'docker' => {
                 'run' => [%q(ruby -e 'puts "Hello"')]
@@ -352,42 +338,6 @@ RSpec.describe Djin::Interpreter do
               .to eq('{:default=>{:depends_on=>["image or build param is required for docker tasks"]}}')
           end
         end
-      end
-    end
-
-    context 'without djin_version' do
-      let(:params) do
-        {
-          'default' => {
-            'docker' => {
-              'image' => 'ruby:2.5',
-              'run' => [%q(ruby -e 'puts "Hello"')]
-            }
-          }
-        }
-      end
-
-      it 'exits in error' do
-        expect { load! }.to raise_error(described_class::MissingVersionError)
-      end
-    end
-
-    context 'with a bigger djin_version than the actual' do
-      let(:version) { Vseries::SemanticVersion.new(Djin::VERSION).up(:patch).to_s }
-      let(:params) do
-        {
-          'djin_version' => version,
-          'default' => {
-            'docker' => {
-              'image' => 'ruby:2.5',
-              'run' => [%q(ruby -e 'puts "Hello"')]
-            }
-          }
-        }
-      end
-
-      it 'exits in error' do
-        expect { load! }.to raise_error(described_class::VersionNotSupportedError)
       end
     end
   end

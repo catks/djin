@@ -3,31 +3,29 @@ djin_version: '0.5.0'
 _default_run_options: &default_run_options
   options: "--rm --entrypoint=''"
 
-test:
-  docker-compose:
-    service: app
-    run:
-      commands: "cd /usr/src/djin && rspec {{args}}"
-      <<: *default_run_options
+tasks:
+  test:
+    docker-compose:
+      service: app
+      run:
+        commands: "cd /usr/src/djin && rspec {{args}}"
+        <<: *default_run_options
 
-sh:
-  docker-compose:
-    service: app
-    run:
-      commands: "sh"
-      <<: *default_run_options
-run:
-  docker-compose:
-    service: app
-    run:
-      commands: "sh -c '{{args}}'"
-      <<: *default_run_options
+  sh:
+    docker-compose:
+      service: app
+      run:
+        commands: "sh"
+        <<: *default_run_options
+  run:
+    docker-compose:
+      service: app
+      run:
+        commands: "sh -c '{{args}}'"
+        <<: *default_run_options
 
-release:
-  local:
-    run:
-      - verto tag up {{args}}
-      - bundle exec rake release
-
-
-
+  release:
+    local:
+      run:
+        - verto tag up {{args}}
+        - bundle exec rake release
