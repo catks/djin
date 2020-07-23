@@ -1,3 +1,6 @@
+## 0.6.0 - 22/07/2020
+ * [FEATURE] Djin Variables
+
 ## 0.5.0 - 13/07/2020
  * [FEATURE] Adds local command task
  * [FEATURE] Template Args for entire djin.yml
