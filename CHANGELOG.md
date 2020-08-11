@@ -1,3 +1,6 @@
+## 0.6.1 - 11/08/2020
+ * [TECH] Better Error Handling
+
 ## 0.6.0 - 22/07/2020
  * [FEATURE] Djin Variables
 
