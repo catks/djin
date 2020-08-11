@@ -27,6 +27,8 @@ module Djin
 
     def raw_djin_config
       @raw_djin_config ||= yaml_load(@template_file)
+    rescue Psych::SyntaxError => e
+      raise Interpreter::InvalidConfigFileError, e.message
     end
 
     def rendered_djin_config
