@@ -36,7 +36,8 @@ module Djin
     @task_repository = TaskRepository.new(tasks)
     CLI.load_tasks!(tasks)
   rescue Djin::Interpreter::InvalidConfigurationError => e
-    abort(e.message)
+    error_name = e.class.name.split('::').last
+    abort("[#{error_name}] #{e.message}")
   end
 
   def self.tasks

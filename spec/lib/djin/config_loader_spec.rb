@@ -488,5 +488,18 @@ RSpec.describe Djin::ConfigLoader do
         expect { load! }.to raise_error(Djin::Interpreter::VersionNotSupportedError)
       end
     end
+
+    context 'with a invalid yaml' do
+      let(:template) do
+        <<~CONFIG_YAML
+          teste
+          :test: 'test'
+        CONFIG_YAML
+      end
+
+      it 'exits in error' do
+        expect { load! }.to raise_error(Djin::Interpreter::InvalidConfigFileError)
+      end
+    end
   end
 end
