@@ -7,7 +7,7 @@ module Djin
     def self.load_tasks!(tasks)
       tasks.each do |task|
         command = Class.new(Dry::CLI::Command) do
-          desc "Runs: #{task.command}"
+          desc task.description
 
           define_method(:task) { task }
 

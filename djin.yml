@@ -5,6 +5,7 @@ _default_run_options: &default_run_options
 
 tasks:
   test:
+    description: Runs Specs
     docker-compose:
       service: app
       run:
@@ -12,6 +13,7 @@ tasks:
         <<: *default_run_options
 
   sh:
+    description: Enter app service shell
     docker-compose:
       service: app
       run:

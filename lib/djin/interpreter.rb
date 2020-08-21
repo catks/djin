@@ -12,20 +12,24 @@ module Djin
     InvalidSyntaxError = Class.new(InvalidConfigurationError)
 
     class << self
-      def load!(tasks_params)
+      def load!(file_config)
         contract = TaskContract.new
 
-        tasks_params.map do |task_name, options|
+        file_config.tasks.map do |task_name, options|
           result = contract.call(options)
 
           raise InvalidSyntaxError, { task_name.to_sym => result.errors.to_h } if result.failure?
 
           command, build_command = build_commands(options, task_name: task_name)
 
+          raw_command, = build_commands(file_config.raw_tasks[task_name], task_name: task_name)
+
           task_params = {
             name: task_name,
             build_command: build_command,
+            description: options['description'] || "Runs: #{raw_command}",
             command: command,
+            raw_command: raw_command,
             depends_on: options['depends_on']
           }.compact
 

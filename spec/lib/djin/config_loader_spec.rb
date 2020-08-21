@@ -2,13 +2,26 @@
 
 RSpec.describe Djin::ConfigLoader do
   describe '.load!' do
-    subject(:load!) { described_class.load!(template) }
+    subject(:load!) { described_class.load!(config) }
+
+    let(:djin_version) { Djin::VERSION }
+    let(:expected_raw_tasks) { expected_tasks }
+    let(:expected_variables) { {} }
+
+    let(:expected_file_config) do
+      Djin::FileConfig.new(
+        djin_version: djin_version,
+        tasks: expected_tasks,
+        raw_tasks: expected_raw_tasks,
+        variables: expected_variables
+      )
+    end
 
     # TODO: Remove in 1.0.0 Release
     context 'with legacy tasks' do
-      let(:template) do
+      let(:config) do
         {
-          'djin_version' => Djin::VERSION,
+          'djin_version' => djin_version,
           'default' => {
             'docker' => {
               'image' => 'ruby:2.5',
@@ -18,8 +31,8 @@ RSpec.describe Djin::ConfigLoader do
         }.to_yaml
       end
 
-      it 'returns the template as a hash' do
-        expected_template = {
+      let(:expected_tasks) do
+        {
           'default' => {
             'docker' => {
               'image' => 'ruby:2.5',
@@ -27,13 +40,16 @@ RSpec.describe Djin::ConfigLoader do
             }
           }
         }
-        is_expected.to eq(expected_template)
       end
 
-      context 'with a template with keys starting with underscore' do
-        let(:template) do
+      it 'returns the expected file config' do
+        is_expected.to eq(expected_file_config)
+      end
+
+      context 'with a config with keys starting with underscore' do
+        let(:config) do
           {
-            'djin_version' => Djin::VERSION,
+            'djin_version' => djin_version,
             '_hide' => 'this',
             'default' => {
               'docker' => {
@@ -44,8 +60,8 @@ RSpec.describe Djin::ConfigLoader do
           }.to_yaml
         end
 
-        it 'returns the template as a hash' do
-          expected_template = {
+        let(:expected_tasks) do
+          {
             'default' => {
               'docker' => {
                 'image' => 'ruby:2.5',
@@ -53,14 +69,17 @@ RSpec.describe Djin::ConfigLoader do
               }
             }
           }
-          is_expected.to eq(expected_template)
+        end
+
+        it 'returns the config as a hash' do
+          is_expected.to eq(expected_file_config)
         end
       end
 
       context 'with custom values for args' do
-        let(:template) do
+        let(:config) do
           {
-            'djin_version' => Djin::VERSION,
+            'djin_version' => djin_version,
             'default' => {
               'docker' => {
                 'image' => 'ruby:2.5',
@@ -70,12 +89,8 @@ RSpec.describe Djin::ConfigLoader do
           }.to_yaml
         end
 
-        let(:command_args) { ['some:task', '--', '-a'] }
-
-        it 'returns a string with rendered args' do
-          stub_const('ARGV', command_args)
-
-          expected_rendered_template = {
+        let(:expected_tasks) do
+          {
             'default' => {
               'docker' => {
                 'image' => 'ruby:2.5',
@@ -83,14 +98,32 @@ RSpec.describe Djin::ConfigLoader do
               }
             }
           }
-          is_expected.to eq(expected_rendered_template)
+        end
+
+        let(:expected_raw_tasks) do
+          {
+            'default' => {
+              'docker' => {
+                'image' => 'ruby:2.5',
+                'run' => ['rubocop {{args}}']
+              }
+            }
+          }
+        end
+
+        let(:command_args) { ['some:task', '--', '-a'] }
+
+        it 'returns a string with rendered args' do
+          stub_const('ARGV', command_args)
+
+          is_expected.to eq(expected_file_config)
         end
       end
 
       context 'when using args and args?' do
-        let(:template) do
+        let(:config) do
           {
-            'djin_version' => Djin::VERSION,
+            'djin_version' => djin_version,
             'default' => {
               'docker' => {
                 'image' => 'some_image',
@@ -100,31 +133,43 @@ RSpec.describe Djin::ConfigLoader do
           }.to_yaml
         end
 
+        let(:expected_tasks) do
+          {
+            'default' => {
+              'docker' => {
+                'image' => 'some_image',
+                'run' => ['echo "Hi, I Have args"']
+              }
+            }
+          }
+        end
+
+        let(:expected_raw_tasks) do
+          {
+            'default' => {
+              'docker' => {
+                'image' => 'some_image',
+                'run' => ['echo "Hi{{#args?}}, I Have args{{/args?}}"']
+              }
+            }
+          }
+        end
+
         context 'with args' do
           let(:command_args) { ['some:task', '--', '-a'] }
 
           it 'returns a string folowwinf the consitional' do
             stub_const('ARGV', command_args)
 
-            expected_rendered_template = {
-              'default' => {
-                'docker' => {
-                  'image' => 'some_image',
-                  'run' => ['echo "Hi, I Have args"']
-                }
-              }
-            }
-            is_expected.to eq(expected_rendered_template)
+            is_expected.to eq(expected_file_config)
           end
         end
 
         context 'without args' do
           let(:command_args) { [] }
 
-          it 'returns a string folowwinf the consitional' do
-            stub_const('ARGV', command_args)
-
-            expected_rendered_template = {
+          let(:expected_tasks) do
+            {
               'default' => {
                 'docker' => {
                   'image' => 'some_image',
@@ -132,15 +177,20 @@ RSpec.describe Djin::ConfigLoader do
                 }
               }
             }
-            is_expected.to eq(expected_rendered_template)
+          end
+
+          it 'returns a string folowwinf the consitional' do
+            stub_const('ARGV', command_args)
+
+            is_expected.to eq(expected_file_config)
           end
         end
       end
 
       context 'with environment variables' do
-        let(:template) do
+        let(:config) do
           {
-            'djin_version' => Djin::VERSION,
+            'djin_version' => djin_version,
             'default' => {
               'docker' => {
                 'image' => 'some_image',
@@ -148,6 +198,28 @@ RSpec.describe Djin::ConfigLoader do
               }
             }
           }.to_yaml
+        end
+
+        let(:expected_tasks) do
+          {
+            'default' => {
+              'docker' => {
+                'image' => 'some_image',
+                'run' => ['ls test test2']
+              }
+            }
+          }
+        end
+
+        let(:expected_raw_tasks) do
+          {
+            'default' => {
+              'docker' => {
+                'image' => 'some_image',
+                'run' => ['ls {{#MULTIPLE_FILES}}{{FILES}}{{/MULTIPLE_FILES}}']
+              }
+            }
+          }
         end
 
         let(:command_args) { ['some:task', '--', '-a'] }
@@ -161,22 +233,14 @@ RSpec.describe Djin::ConfigLoader do
         it 'returns a string with rendered args' do
           stub_const('ARGV', command_args)
 
-          expected_rendered_template = {
-            'default' => {
-              'docker' => {
-                'image' => 'some_image',
-                'run' => ['ls test test2']
-              }
-            }
-          }
-          is_expected.to eq(expected_rendered_template)
+          is_expected.to eq(expected_file_config)
         end
       end
 
       context 'with djin variables' do
-        let(:template) do
+        let(:config) do
           {
-            'djin_version' => Djin::VERSION,
+            'djin_version' => djin_version,
             'variables' => {
               'test_variable' => 'HelloTest'
             },
@@ -189,8 +253,12 @@ RSpec.describe Djin::ConfigLoader do
           }.to_yaml
         end
 
-        it 'returns template tasks' do
-          expected_rendered_template = {
+        let(:expected_variables) do
+          { test_variable: 'HelloTest' }
+        end
+
+        let(:expected_tasks) do
+          {
             'default' => {
               'docker' => {
                 'image' => 'ruby:2.5',
@@ -198,12 +266,26 @@ RSpec.describe Djin::ConfigLoader do
               }
             }
           }
-          is_expected.to eq(expected_rendered_template)
+        end
+
+        let(:expected_raw_tasks) do
+          {
+            'default' => {
+              'docker' => {
+                'image' => 'ruby:2.5',
+                'run' => [%q(ruby -e 'puts "{{test_variable}}"')]
+              }
+            }
+          }
+        end
+
+        it 'returns config tasks' do
+          is_expected.to eq(expected_file_config)
         end
       end
 
       context 'without djin_version' do
-        let(:template) do
+        let(:config) do
           {
             'default' => {
               'docker' => {
@@ -220,8 +302,8 @@ RSpec.describe Djin::ConfigLoader do
       end
 
       context 'with a bigger djin_version than the actual' do
-        let(:version) { Vseries::SemanticVersion.new(Djin::VERSION).up(:patch).to_s }
-        let(:template) do
+        let(:version) { Vseries::SemanticVersion.new(djin_version).up(:patch).to_s }
+        let(:config) do
           {
             'djin_version' => version,
             'default' => {
@@ -239,10 +321,10 @@ RSpec.describe Djin::ConfigLoader do
       end
     end
 
-    context 'with a template without custom values' do
-      let(:template) do
+    context 'with a config without custom values' do
+      let(:config) do
         {
-          'djin_version' => Djin::VERSION,
+          'djin_version' => djin_version,
           'tasks' => {
             'default' => {
               'docker' => {
@@ -254,8 +336,8 @@ RSpec.describe Djin::ConfigLoader do
         }.to_yaml
       end
 
-      it 'returns the template as a hash' do
-        expected_template = {
+      let(:expected_tasks) do
+        {
           'default' => {
             'docker' => {
               'image' => 'ruby:2.5',
@@ -263,14 +345,17 @@ RSpec.describe Djin::ConfigLoader do
             }
           }
         }
-        is_expected.to eq(expected_template)
+      end
+
+      it 'returns the config as a hash' do
+        is_expected.to eq(expected_file_config)
       end
     end
 
-    context 'with a template with keys starting with underscore' do
-      let(:template) do
+    context 'with a config with keys starting with underscore' do
+      let(:config) do
         {
-          'djin_version' => Djin::VERSION,
+          'djin_version' => djin_version,
           '_hide' => 'this',
           'tasks' => {
             'default' => {
@@ -283,8 +368,8 @@ RSpec.describe Djin::ConfigLoader do
         }.to_yaml
       end
 
-      it 'returns the template as a hash' do
-        expected_template = {
+      let(:expected_tasks) do
+        {
           'default' => {
             'docker' => {
               'image' => 'ruby:2.5',
@@ -292,14 +377,17 @@ RSpec.describe Djin::ConfigLoader do
             }
           }
         }
-        is_expected.to eq(expected_template)
+      end
+
+      it 'returns the config as a hash' do
+        is_expected.to eq(expected_file_config)
       end
     end
 
     context 'with custom values for args' do
-      let(:template) do
+      let(:config) do
         {
-          'djin_version' => Djin::VERSION,
+          'djin_version' => djin_version,
           'tasks' => {
             'default' => {
               'docker' => {
@@ -311,12 +399,8 @@ RSpec.describe Djin::ConfigLoader do
         }.to_yaml
       end
 
-      let(:command_args) { ['some:task', '--', '-a'] }
-
-      it 'returns a string with rendered args' do
-        stub_const('ARGV', command_args)
-
-        expected_rendered_template = {
+      let(:expected_tasks) do
+        {
           'default' => {
             'docker' => {
               'image' => 'ruby:2.5',
@@ -324,14 +408,32 @@ RSpec.describe Djin::ConfigLoader do
             }
           }
         }
-        is_expected.to eq(expected_rendered_template)
+      end
+
+      let(:expected_raw_tasks) do
+        {
+          'default' => {
+            'docker' => {
+              'image' => 'ruby:2.5',
+              'run' => ['rubocop {{args}}']
+            }
+          }
+        }
+      end
+
+      let(:command_args) { ['some:task', '--', '-a'] }
+
+      it 'returns a string with rendered args' do
+        stub_const('ARGV', command_args)
+
+        is_expected.to eq(expected_file_config)
       end
     end
 
     context 'when using args and args?' do
-      let(:template) do
+      let(:config) do
         {
-          'djin_version' => Djin::VERSION,
+          'djin_version' => djin_version,
           'tasks' => {
             'default' => {
               'docker' => {
@@ -343,13 +445,22 @@ RSpec.describe Djin::ConfigLoader do
         }.to_yaml
       end
 
+      let(:expected_raw_tasks) do
+        {
+          'default' => {
+            'docker' => {
+              'image' => 'some_image',
+              'run' => ['echo "Hi{{#args?}}, I Have args{{/args?}}"']
+            }
+          }
+        }
+      end
+
       context 'with args' do
         let(:command_args) { ['some:task', '--', '-a'] }
 
-        it 'returns a string folowwinf the consitional' do
-          stub_const('ARGV', command_args)
-
-          expected_rendered_template = {
+        let(:expected_tasks) do
+          {
             'default' => {
               'docker' => {
                 'image' => 'some_image',
@@ -357,17 +468,20 @@ RSpec.describe Djin::ConfigLoader do
               }
             }
           }
-          is_expected.to eq(expected_rendered_template)
+        end
+
+        it 'returns a string folowwinf the consitional' do
+          stub_const('ARGV', command_args)
+
+          is_expected.to eq(expected_file_config)
         end
       end
 
       context 'without args' do
         let(:command_args) { [] }
 
-        it 'returns a string folowwinf the consitional' do
-          stub_const('ARGV', command_args)
-
-          expected_rendered_template = {
+        let(:expected_tasks) do
+          {
             'default' => {
               'docker' => {
                 'image' => 'some_image',
@@ -375,15 +489,20 @@ RSpec.describe Djin::ConfigLoader do
               }
             }
           }
-          is_expected.to eq(expected_rendered_template)
+        end
+
+        it 'returns a string folowwinf the consitional' do
+          stub_const('ARGV', command_args)
+
+          is_expected.to eq(expected_file_config)
         end
       end
     end
 
     context 'with environment variables' do
-      let(:template) do
+      let(:config) do
         {
-          'djin_version' => Djin::VERSION,
+          'djin_version' => djin_version,
           'tasks' => {
             'default' => {
               'docker' => {
@@ -403,10 +522,8 @@ RSpec.describe Djin::ConfigLoader do
         ENV['MULTIPLE_FILES'] = 'true'
       end
 
-      it 'returns a string with rendered args' do
-        stub_const('ARGV', command_args)
-
-        expected_rendered_template = {
+      let(:expected_tasks) do
+        {
           'default' => {
             'docker' => {
               'image' => 'some_image',
@@ -414,14 +531,30 @@ RSpec.describe Djin::ConfigLoader do
             }
           }
         }
-        is_expected.to eq(expected_rendered_template)
+      end
+
+      let(:expected_raw_tasks) do
+        {
+          'default' => {
+            'docker' => {
+              'image' => 'some_image',
+              'run' => ['ls {{#MULTIPLE_FILES}}{{FILES}}{{/MULTIPLE_FILES}}']
+            }
+          }
+        }
+      end
+
+      it 'returns a string with rendered args' do
+        stub_const('ARGV', command_args)
+
+        is_expected.to eq(expected_file_config)
       end
     end
 
     context 'with djin variables' do
-      let(:template) do
+      let(:config) do
         {
-          'djin_version' => Djin::VERSION,
+          'djin_version' => djin_version,
           'variables' => {
             'test_variable' => 'HelloTest'
           },
@@ -436,8 +569,10 @@ RSpec.describe Djin::ConfigLoader do
         }.to_yaml
       end
 
-      it 'returns template tasks' do
-        expected_rendered_template = {
+      let(:expected_variables) { { test_variable: 'HelloTest' } }
+
+      let(:expected_tasks) do
+        {
           'default' => {
             'docker' => {
               'image' => 'ruby:2.5',
@@ -445,12 +580,59 @@ RSpec.describe Djin::ConfigLoader do
             }
           }
         }
-        is_expected.to eq(expected_rendered_template)
+      end
+
+      let(:expected_raw_tasks) do
+        {
+          'default' => {
+            'docker' => {
+              'image' => 'ruby:2.5',
+              'run' => [%q(ruby -e 'puts "{{test_variable}}"')]
+            }
+          }
+        }
+      end
+
+      it 'returns config tasks' do
+        is_expected.to eq(expected_file_config)
+      end
+    end
+
+    context 'with a description' do
+      let(:config) do
+        {
+          'djin_version' => djin_version,
+          'tasks' => {
+            'default' => {
+              'description' => 'Some description',
+              'docker' => {
+                'image' => 'ruby:2.5',
+                'run' => [%q(ruby -e 'puts "Test"')]
+              }
+            }
+          }
+        }.to_yaml
+      end
+
+      let(:expected_tasks) do
+        {
+          'default' => {
+            'description' => 'Some description',
+            'docker' => {
+              'image' => 'ruby:2.5',
+              'run' => [%q(ruby -e 'puts "Test"')]
+            }
+          }
+        }
+      end
+
+      it 'returns config tasks' do
+        is_expected.to eq(expected_file_config)
       end
     end
 
     context 'without djin_version' do
-      let(:template) do
+      let(:config) do
         {
           'tasks' => {
             'default' => {
@@ -469,8 +651,8 @@ RSpec.describe Djin::ConfigLoader do
     end
 
     context 'with a bigger djin_version than the actual' do
-      let(:version) { Vseries::SemanticVersion.new(Djin::VERSION).up(:patch).to_s }
-      let(:template) do
+      let(:version) { Vseries::SemanticVersion.new(djin_version).up(:patch).to_s }
+      let(:config) do
         {
           'djin_version' => version,
           'tasks' => {
@@ -490,7 +672,7 @@ RSpec.describe Djin::ConfigLoader do
     end
 
     context 'with a invalid yaml' do
-      let(:template) do
+      let(:config) do
         <<~CONFIG_YAML
           teste
           :test: 'test'

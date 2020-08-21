@@ -2,7 +2,17 @@
 
 RSpec.describe Djin::Interpreter do
   describe '.load!' do
-    subject(:load!) { described_class.load!(params) }
+    subject(:load!) { described_class.load!(file_config) }
+
+    let(:file_config) do
+      Djin::FileConfig.new(
+        djin_version: Djin::VERSION,
+        tasks: params,
+        raw_tasks: raw_params
+      )
+    end
+
+    let(:raw_params) { params }
 
     context 'with a docker command' do
       let(:params) do
@@ -315,6 +325,45 @@ RSpec.describe Djin::Interpreter do
                             Djin::Task.new(name: 'two',
                                            command: %(docker-compose -f other_compose.yml) +
                                             %( run --rm app sh -c "ruby -e 'puts \"Hello\"'"),
+                                           depends_on: ['one'])
+                          ])
+      end
+    end
+
+    context 'with a description option' do
+      let(:params) do
+        {
+          'one' => {
+            'description' => 'Some Description',
+            'docker' => {
+              'image' => 'ruby:2.5',
+              'run' => [%q(ruby -e 'puts "Hello"')]
+            }
+          },
+          'two' => {
+            'description' => 'Some Description',
+            'docker-compose' => {
+              'options' => '-f other_compose.yml',
+              'service' => 'app',
+              'run' => {
+                'commands' => %q(ruby -e 'puts "Hello"'),
+                'options' => '--rm'
+              }
+            },
+            'depends_on': ['one']
+          }
+        }
+      end
+
+      it 'load a task with the docker command' do
+        is_expected.to eq([
+                            Djin::Task.new(name: 'one',
+                                           command: %(docker run ruby:2.5 sh -c "ruby -e 'puts \"Hello\"'"),
+                                           description: 'Some Description'),
+                            Djin::Task.new(name: 'two',
+                                           command: %(docker-compose -f other_compose.yml) +
+                                            %( run --rm app sh -c "ruby -e 'puts \"Hello\"'"),
+                                           description: 'Some Description',
                                            depends_on: ['one'])
                           ])
       end
