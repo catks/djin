@@ -19,11 +19,19 @@ module Djin
     def load!
       validate_version!
 
-      # TODO: Return a DjinConfig Entity
-      tasks
+      file_config
     end
 
     private
+
+    def file_config
+      FileConfig.new(
+        djin_version: version,
+        variables: variables,
+        tasks: tasks,
+        raw_tasks: raw_tasks
+      )
+    end
 
     def raw_djin_config
       @raw_djin_config ||= yaml_load(@template_file)
@@ -56,11 +64,19 @@ module Djin
       rendered_djin_config['tasks'] || legacy_tasks
     end
 
+    def raw_tasks
+      raw_djin_config['tasks'] || legacy_raw_tasks
+    end
+
     def legacy_tasks
       warn '[DEPRECATED] Root tasks are deprecated and will be removed in Djin 1.0.0,' \
            ' put the tasks under \'tasks\' keyword'
 
       rendered_djin_config.except(*RESERVED_WORDS).reject { |task| task.start_with?('_') }
+    end
+
+    def legacy_raw_tasks
+      raw_djin_config.except(*RESERVED_WORDS).reject { |task| task.start_with?('_') }
     end
 
     def args
@@ -79,14 +95,10 @@ module Djin
       YAML.safe_load(text, [], [], true)
     end
 
-    def version_supported?
-      Vseries::SemanticVersion.new(Djin::VERSION) >= Vseries::SemanticVersion.new(version)
-    end
-
     def validate_version!
       raise Interpreter::MissingVersionError, 'Missing djin_version' unless version
 
-      return if version_supported?
+      return if file_config.version_supported?
 
       raise Interpreter::VersionNotSupportedError, "Version #{version} is not supported, use #{Djin::VERSION} or higher"
     end

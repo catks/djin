@@ -28,6 +28,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'dry-cli', '~> 0.6.0'
+  spec.add_dependency 'dry-equalizer', '~> 0.3.0'
   spec.add_dependency 'dry-struct', '~> 1.3.0'
   spec.add_dependency 'dry-validation', '~> 1.5.1'
   spec.add_dependency 'mustache', '~> 1.1.1'
