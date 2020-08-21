@@ -1,3 +1,6 @@
+## 0.7.0 - 20/08/2020
+ * [FEATURE] Adds description option
+
 ## 0.6.1 - 11/08/2020
  * [TECH] Better Error Handling
 
