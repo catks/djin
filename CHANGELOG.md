@@ -1,3 +1,6 @@
+## 0.8.0 - 31/08/2020
+ * [FEATURE] Adds aliases option
+
 ## 0.7.0 - 20/08/2020
  * [FEATURE] Adds description option
 

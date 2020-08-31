@@ -26,7 +26,7 @@ If you use Rbenv you can install djin only once and create a alias in your .basr
 To use djin first you need to create a djin.yml file:
 
 ```yaml
-djin_version: '0.7.0'
+djin_version: '0.8.0'
 
 tasks:
   # With a docker image
@@ -53,7 +53,7 @@ You can also set task dependencies with depends_on option:
 
 
 ```yaml
-djin_version: '0.7.0'
+djin_version: '0.8.0'
 
 _default_run_options: &default_run_options
   options: "--rm"
@@ -82,7 +82,7 @@ tasks:
 Or mix local commands and docker/docker-compose commands:
 
 ```yaml
-djin_version: '0.7.0'
+djin_version: '0.8.0'
 
 _default_run_options: &default_run_options
   options: "--rm"
@@ -121,7 +121,7 @@ After that you can run `djin {{task_name}}`, like `djin script` or `djin test`
 You can also use environment variables using the '{{YOUR_ENV_HERE}}' syntax, like so:
 
 ```yaml
-djin_version: '0.7.0'
+djin_version: '0.8.0'
 
 _default_run_options: &default_run_options
   options: "--rm"
@@ -138,7 +138,7 @@ tasks:
 
 Or define some variables to use in multiple locations
 ```yaml
-djin_version: '0.7.0'
+djin_version: '0.8.0'
 
 _default_run_options: &default_run_options
   options: "--rm"
@@ -162,7 +162,7 @@ tasks:
 It's also possible to pass custom arguments to the command, which means is possible to make a djin task act like the command itself:
 
 ```yaml
-djin_version: '0.7.0'
+djin_version: '0.8.0'
 
 _default_run_options: &default_run_options
   options: "--rm"

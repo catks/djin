@@ -1,5 +1,5 @@
 ---
-djin_version: '0.7.0'
+djin_version: '0.8.0'
 
 tasks:
   default:
