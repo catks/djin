@@ -16,7 +16,7 @@ module Djin
           end
         end
 
-        register task.name, command
+        register(task.name, command, aliases: task.aliases)
       end
     end
 

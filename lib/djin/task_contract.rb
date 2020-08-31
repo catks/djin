@@ -49,6 +49,7 @@ module Djin
         hash(LocalSchema)
       end
 
+      optional(:aliases).each(:str?)
       optional(:depends_on).each(:str?)
     end
 

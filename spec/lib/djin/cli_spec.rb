@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 RSpec.describe Djin::CLI do
+  xdescribe '.load_tasks' do
+    it 'load the tasks' do
+    end
+  end
+
   describe described_class::Version do
     let(:instance) { described_class.new }
 
