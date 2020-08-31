@@ -369,6 +369,43 @@ RSpec.describe Djin::Interpreter do
       end
     end
 
+    context 'with a aliases option' do
+      let(:params) do
+        {
+          'one' => {
+            'aliases' => %w[1 one],
+            'docker' => {
+              'image' => 'ruby:2.5',
+              'run' => [%q(ruby -e 'puts "Hello"')]
+            }
+          },
+          'two' => {
+            'aliases' => %w[2 second],
+            'docker-compose' => {
+              'options' => '-f other_compose.yml',
+              'service' => 'app',
+              'run' => {
+                'commands' => %q(ruby -e 'puts "Hello"'),
+                'options' => '--rm'
+              }
+            }
+          }
+        }
+      end
+
+      it 'load a task with the docker command' do
+        is_expected.to eq([
+                            Djin::Task.new(name: 'one',
+                                           command: %(docker run ruby:2.5 sh -c "ruby -e 'puts \"Hello\"'"),
+                                           aliases: %w[1 one]),
+                            Djin::Task.new(name: 'two',
+                                           command: %(docker-compose -f other_compose.yml) +
+                                            %( run --rm app sh -c "ruby -e 'puts \"Hello\"'"),
+                                           aliases: %w[2 second])
+                          ])
+      end
+    end
+
     context 'with invalid configuration' do
       context 'in a docker task' do
         let(:params) do

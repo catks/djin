@@ -631,6 +631,39 @@ RSpec.describe Djin::ConfigLoader do
       end
     end
 
+    context 'with aliases' do
+      let(:config) do
+        {
+          'djin_version' => djin_version,
+          'tasks' => {
+            'default' => {
+              'docker' => {
+                'image' => 'ruby:2.5',
+                'run' => [%q(ruby -e 'puts "Test"')]
+              },
+              'aliases' => ['theone']
+            }
+          }
+        }.to_yaml
+      end
+
+      let(:expected_tasks) do
+        {
+          'default' => {
+            'docker' => {
+              'image' => 'ruby:2.5',
+              'run' => [%q(ruby -e 'puts "Test"')]
+            },
+            'aliases' => ['theone']
+          }
+        }
+      end
+
+      it 'returns config tasks' do
+        is_expected.to eq(expected_file_config)
+      end
+    end
+
     context 'without djin_version' do
       let(:config) do
         {

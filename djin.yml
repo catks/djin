@@ -11,6 +11,8 @@ tasks:
       run:
         commands: "cd /usr/src/djin && rspec {{args}}"
         <<: *default_run_options
+    aliases:
+      - rspec
 
   sh:
     description: Enter app service shell

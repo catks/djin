@@ -40,11 +40,13 @@ tasks:
 
   # Using a docker-compose service
   test:
-  docker-compose:
-    service: app
-    run:
-      commands: rspec
-      options: "--rm"
+    docker-compose:
+      service: app
+      run:
+        commands: rspec
+        options: "--rm"
+    aliases: # Optional Array of strings
+      - rspec
 ```
 
 You can also set task dependencies with depends_on option:
@@ -172,6 +174,8 @@ tasks:
       run:
         commands: rubocop {{args}}
         <<: *default_run_options
+    aliases:
+      - lint
 
 ```
 

@@ -30,6 +30,7 @@ module Djin
             description: options['description'] || "Runs: #{raw_command}",
             command: command,
             raw_command: raw_command,
+            aliases: options['aliases'],
             depends_on: options['depends_on']
           }.compact
 
