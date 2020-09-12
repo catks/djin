@@ -183,6 +183,91 @@ With that you can pass custom args after `--`, eg: `djin rubocop -- --parallel`,
 
 Under the hood djin uses [Mustache](https://mustache.github.io/), so you can use other features like conditionals: `{{#IS_ENABLE}} Enabled {{/IS_ENABLE}}` (for args use the `args?`, eg: `{{#args?}} {{args}} --and-other-thing{{/args?}}`), to see more more options you can access this [Link](https://mustache.github.io/mustache.5.html)
 
+### Reusing tasks
+
+If you have multiple tasks with similar behaviour and with small differences you can use the `include` keyword, so this:
+
+```yaml
+djin_version: '0.8.0'
+
+tasks:
+  "host1:ssh":
+    local:
+      run:
+        - ssh my_user@host1.com.br
+
+  "host1:restart":
+    local:
+      run:
+        - ssh -t my_user@host1.com.br restart
+
+  "host1:logs":
+    local:
+      run:
+        - ssh -t my_user@host1.com.br tail -f /var/log/my_log
+
+  "host2:ssh":
+    local:
+      run:
+        - ssh my_user@host2.com.br
+
+  "host2:restart":
+    local:
+      run:
+        - ssh -t my_user@host2.com.br restart
+
+  "host2:logs":
+    local:
+      run:
+        - ssh -t my_user@host2.com.br tail -f /var/log/my_file
+
+```
+
+can become this:
+
+```yaml
+# djin.yml
+djin_version: '0.8.0'
+
+include:
+  - file: '.djin/server_tasks.yml'
+    context:
+      variables:
+        namespace: host1
+        host: host1.com
+        ssh_user: my_user
+
+  - file: '.djin/server_tasks.yml'
+    context:
+      variables:
+        namespace: host2
+        host: host2.com
+        ssh_user: my_user
+
+```
+
+
+```yaml
+# .djin/server_tasks.yml
+djin_version: '0.8.0'
+
+tasks:
+  "{{namespace}}:ssh":
+    local:
+      run:
+        - ssh {{ssh_user}}@{{host}}
+
+  "{{namespace}}:restart":
+    local:
+      run:
+        - ssh -t {{ssh_user}}@{{host}} restart
+
+  "{{namespace}}:logs":
+    local:
+      run:
+        - ssh -t {{ssh_user}}@{{host}} tail -f /var/log/my_log
+  ```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

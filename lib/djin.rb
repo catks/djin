@@ -22,14 +22,15 @@ require 'djin/executor'
 require 'djin/cli'
 require 'djin/task_contract'
 require 'djin/repositories/task_repository'
+require 'djin/memory_cache'
 
 module Djin
   class Error < StandardError; end
 
-  def self.load_tasks!(path = Pathname.getwd.join('djin.yml'))
-    abort 'Error: djin.yml not found' unless path.exist?
+  def self.load_tasks!(file_path = Pathname.getwd.join('djin.yml'))
+    abort 'Error: djin.yml not found' unless file_path.exist?
 
-    file_config = ConfigLoader.load!(path.read)
+    file_config = ConfigLoader.load!(file_path)
 
     # TODO: Make all tasks be under 'tasks' key, passing only the tasks here
     tasks = Interpreter.load!(file_config)
@@ -47,5 +48,13 @@ module Djin
 
   def self.task_repository
     @task_repository ||= TaskRepository.new
+  end
+
+  def self.cache
+    @cache ||= MemoryCache.new
+  end
+
+  def self.root_path
+    Pathname.new File.expand_path(File.dirname(__FILE__) + '/..')
   end
 end

@@ -2,7 +2,9 @@
 
 RSpec.describe Djin::ConfigLoader do
   describe '.load!' do
-    subject(:load!) { described_class.load!(config) }
+    subject(:load!) { described_class.load!(config_file.to_pathname) }
+
+    let(:config_file) { TestFile.new(config) }
 
     let(:djin_version) { Djin::VERSION }
     let(:expected_raw_tasks) { expected_tasks }
@@ -15,6 +17,11 @@ RSpec.describe Djin::ConfigLoader do
         raw_tasks: expected_raw_tasks,
         variables: expected_variables
       )
+    end
+
+    after do
+      Djin.cache.clear
+      config_file.close
     end
 
     # TODO: Remove in 1.0.0 Release
@@ -281,6 +288,10 @@ RSpec.describe Djin::ConfigLoader do
 
         it 'returns config tasks' do
           is_expected.to eq(expected_file_config)
+        end
+
+        context 'with a invalid configuration' do
+          xit 'exits in error with the invalid configuration message'
         end
       end
 
@@ -661,6 +672,144 @@ RSpec.describe Djin::ConfigLoader do
 
       it 'returns config tasks' do
         is_expected.to eq(expected_file_config)
+      end
+    end
+
+    context 'with include option' do
+      let(:config) do
+        {
+          'djin_version' => djin_version,
+          'include' => [
+            {
+              'file' => file_to_include_path,
+              'context' => {
+                'variables' => {
+                  'namespace' => 'some_namespace:'
+                }
+              }
+            },
+            {
+              'file' => file_to_include_path,
+              'context' => {
+                'variables' => {
+                  'namespace' => 'some_namespace2:'
+                }
+              }
+            }
+          ],
+          'tasks' => {
+            'default' => {
+              'docker' => {
+                'image' => 'ruby:2.5',
+                'run' => [%q(ruby -e 'puts "Test"')]
+              }
+            }
+          }
+        }.to_yaml
+      end
+
+      let(:config_to_include) do
+        {
+          'djin_version' => djin_version,
+          'variables' => {
+            'ruby_version' => '2.6'
+          },
+          'tasks' => {
+            '"{{namespace}}default"' => {
+              'docker' => {
+                'image' => '"ruby:{{ruby_version}}"',
+                'run' => [%q(ruby -e 'puts "Test"')]
+              }
+            }
+          }
+        }.to_yaml
+      end
+
+      context 'when the file exists' do
+        let(:file_to_include_path) { TestFile.new(config_to_include).path }
+        # TODO: Improve runtime config variables behaviour, in the current implementation
+        #       if multiple files are included with variables with the same name, only the
+        #       last variable is persisted in the FileConfig#variables, maybe create another
+        #       field to persist (eg: runtime_variables) all the variables in the include -> context?
+        let(:expected_variables) { { ruby_version: '2.6', namespace: 'some_namespace2:' } }
+
+        let(:expected_tasks) do
+          {
+            '"some_namespace:default"' => {
+              'docker' => {
+                'image' => '"ruby:2.6"',
+                'run' => [%q(ruby -e 'puts "Test"')]
+              }
+            },
+            '"some_namespace2:default"' => {
+              'docker' => {
+                'image' => '"ruby:2.6"',
+                'run' => [%q(ruby -e 'puts "Test"')]
+              }
+            },
+            'default' => {
+              'docker' => {
+                'image' => 'ruby:2.5',
+                'run' => [%q(ruby -e 'puts "Test"')]
+              }
+            }
+          }
+        end
+
+        let(:expected_raw_tasks) do
+          {
+            '"{{namespace}}default"' => {
+              'docker' => {
+                'image' => '"ruby:{{ruby_version}}"',
+                'run' => [%q(ruby -e 'puts "Test"')]
+              }
+            },
+            'default' => {
+              'docker' => {
+                'image' => 'ruby:2.5',
+                'run' => [%q(ruby -e 'puts "Test"')]
+              }
+            }
+          }
+        end
+
+        it 'returns the config file' do
+          is_expected.to eq(expected_file_config)
+        end
+
+        context 'when reading a file more that one time' do
+          it 'load the file and cache for the second read' do
+            file_to_include = Pathname.new(file_to_include_path)
+
+            allow(Pathname).to receive(:new).and_return(file_to_include)
+
+            allow(file_to_include).to receive(:read).and_return(config_to_include)
+
+            described_class.load!(config_file.to_pathname)
+            described_class.load!(config_file.to_pathname)
+
+            expect(file_to_include).to have_received(:read).once
+          end
+        end
+
+        context 'with a recursive include' do
+          xit 'raise error of recursive reference'
+        end
+
+        context 'and no tasks are defined in main djin.yml' do
+          xit 'loads the tasks'
+        end
+      end
+
+      context 'when the file doesnt exists' do
+        let(:file_to_include_path) { 'no_ecziste' }
+        it 'exits in error' do
+          expect { load! }.to raise_error(Djin::Interpreter::InvalidConfigFileError)
+        end
+      end
+
+      context 'with a invalid configuration' do
+        xit 'exits in error with the invalid configuration message'
       end
     end
 
