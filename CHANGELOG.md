@@ -1,3 +1,6 @@
+## 0.9.0 - 17/09/2020
+ * [FEATURE] Include Option
+
 ## 0.8.0 - 31/08/2020
  * [FEATURE] Adds aliases option
 
