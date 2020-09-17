@@ -14,10 +14,12 @@ jobs:
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-      - run: |
+      - name: Install Gems
+        run: |
           gem install bundler
           bundle install --jobs 4 --retry 3
-          bundle exec rake
+      - name: Run tests
+        run: bundle exec rake
 
   lint:
     runs-on: ubuntu-16.04
@@ -27,8 +29,10 @@ jobs:
       - uses: actions/setup-ruby@v1
         with:
           ruby-version: '2.6'
-      - run: |
+      - name: Install Gems
+        run: |
           gem install bundler
           bundle install --jobs 4 --retry 3
-          bundle exec rubocop
+      - name: Rubocop
+        run: bundle exec rubocop
 

@@ -1,0 +1,17 @@
+djin_version: '0.8.0'
+
+tasks:
+  "{{namespace}}:ssh":
+    local:
+      run:
+        - ssh {{ssh_user}}@{{host}}
+
+  "{{namespace}}:restart":
+    local:
+      run:
+        - ssh -t {{ssh_user}}@{{host}} restart
+
+  "{{namespace}}:logs":
+    local:
+      run:
+        - ssh -t {{ssh_user}}@{{host}} tail -f /var/log/my_log

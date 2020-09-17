@@ -1,0 +1,22 @@
+djin_version: '0.8.0'
+
+include:
+  - file: '.djin/server_tasks.yml'
+    context:
+      variables:
+        namespace: host1
+        host: host1.com
+        ssh_user: my_user
+
+  - file: '.djin/server_tasks.yml'
+    context:
+      variables:
+        namespace: host2
+        host: host2.com
+        ssh_user: my_user
+
+tasks:
+  hello_command:
+    local:
+      run:
+        - echo 'Hello Djin'

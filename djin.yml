@@ -28,6 +28,11 @@ tasks:
         commands: "sh -c '{{args}}'"
         <<: *default_run_options
 
+  my_test:
+    local:
+      run:
+        commands: 'echo Oi'
+
   release:
     local:
       run:

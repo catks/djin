@@ -1,18 +1,24 @@
 ---
 djin_version: '0.8.0'
 
+include:
+  - file: 'djin_lib/test.yml'
+    context:
+      variables:
+        namespace: 'test:'
+
+  - file: 'djin_lib/test.yml'
+    context:
+      variables:
+        namespace: 'test2:'
+
+
 tasks:
   default:
     docker:
       image: "ruby:2.5"
       run:
         - "ruby -e 'puts \\\" Hello\\\"'"
-  test:
-    docker-compose:
-      service: app
-      run:
-        commands: rspec
-        options: "--rm"
 
   script:
     docker:
