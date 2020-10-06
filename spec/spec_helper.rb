@@ -5,6 +5,7 @@ require 'djin'
 require 'byebug'
 
 require_relative 'support/test_file'
+require_relative 'support/helpers'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -16,4 +17,12 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.before(:all) do
+    require 'bundler/gem_tasks'
+    Rake::Task['install'].invoke
+    require 'open3'
+  end
+
+  config.include(Helpers)
 end

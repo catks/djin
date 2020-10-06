@@ -28,6 +28,16 @@ module Djin
       end
     end
 
+    class File < Dry::CLI::Command
+      desc 'Specify a djin file to load (default: djin.yml)'
+      argument :filepath, required: true, desc: 'The file path to load'
+
+      def call(filename:, **)
+        # The actual behaviour is on RootCliParser
+      end
+    end
+
+    register '-f', File, aliases: ['--file']
     register '--version', Version, aliases: ['-v']
   end
 end
