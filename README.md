@@ -2,6 +2,7 @@
 
 ![](https://github.com/catks/djin/workflows/Ruby/badge.svg?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/824a2e78399813543212/maintainability)](https://codeclimate.com/github/catks/djin/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/824a2e78399813543212/test_coverage)](https://codeclimate.com/github/catks/djin/test_coverage)
 
 Djin is a make-like utility for docker containers
 
