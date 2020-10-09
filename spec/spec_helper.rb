@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'djin'
 require 'byebug'
 
 require_relative 'support/test_file'
 require_relative 'support/helpers'
+
+require 'simplecov'
+SimpleCov.start
+
+require 'djin'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
