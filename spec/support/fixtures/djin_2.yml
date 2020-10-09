@@ -1,0 +1,7 @@
+djin_version: '0.9.0'
+
+tasks:
+  hello2:
+    local:
+      run:
+        - 'echo "Hello2"'

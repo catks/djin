@@ -8,13 +8,26 @@ module Djin
     using Djin::HashExtensions
     RESERVED_WORDS = %w[djin_version variables tasks include].freeze
 
-    def self.load!(template_file, runtime_config: {})
-      new(template_file, runtime_config: runtime_config).load!
+    # CHange Base Error
+    FileNotFoundError = Class.new(Interpreter::InvalidConfigurationError)
+
+    def self.load_files!(*files, runtime_config: {}, base_directory: '.')
+      files.map do |file_path|
+        ConfigLoader.load!(file_path, runtime_config: runtime_config, base_directory: base_directory)
+      end&.reduce(:deep_merge)
     end
 
-    def initialize(template_file, runtime_config: {})
-      @template_file = template_file
-      @template_file_content = Djin.cache.fetch(template_file.realpath.to_s) { template_file.read }
+    def self.load!(template_file_path, runtime_config: {}, base_directory: '.')
+      new(template_file_path, runtime_config: runtime_config, base_directory: base_directory).load!
+    end
+
+    def initialize(template_file_path, runtime_config: {}, base_directory: '.')
+      @base_directory = Pathname.new(base_directory)
+      @template_file = @base_directory.join(template_file_path)
+
+      raise FileNotFoundError, "File '#{@template_file}' not found" unless @template_file.exist?
+
+      @template_file_content = Djin.cache.fetch(@template_file.realpath.to_s) { @template_file.read }
       @runtime_config = runtime_config
     end
 
@@ -83,12 +96,9 @@ module Djin
 
     def included_config
       @included_config ||= raw_djin_config['include']&.map do |tasks_reference|
-        external_config_file = Pathname.new(tasks_reference['file'])
-
-        ConfigLoader.load!(external_config_file, runtime_config: tasks_reference['context'] || {})
+        ConfigLoader.load!(tasks_reference['file'], base_directory: @template_file.dirname,
+                                                    runtime_config: tasks_reference['context'] || {})
       end&.reduce(:deep_merge)
-    rescue Errno::ENOENT => e
-      raise Interpreter::InvalidConfigFileError, e.message
     end
 
     def args

@@ -1,0 +1,7 @@
+djin_version: '0.9.0'
+
+tasks:
+  hello:
+    local:
+      run:
+        - 'echo "Hello From Djin{{custom_variable}}"'

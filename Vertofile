@@ -28,7 +28,7 @@ context(branch('master')) {
     file('CHANGELOG.md').prepend(version_changes)
     git!('add CHANGELOG.md')
 
-    files_to_change_version_once = %w[lib/djin/version.rb djin.yml] + Dir['examples/**/*.yml']
+    files_to_change_version_once = %w[lib/djin/version.rb djin.yml] + Dir['examples/**/*.yml'] + Dir['spec/support/fixtures/**/*.yml']
 
     files_to_change_version_once.each do |filename|
       file(filename).replace(latest_version.to_s, new_version.to_s)

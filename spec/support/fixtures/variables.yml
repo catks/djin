@@ -1,0 +1,4 @@
+djin_version: '0.9.0'
+
+variables:
+  custom_variable: 'with custom variables file'

@@ -8,7 +8,9 @@ require 'dry-validation'
 require 'vseries'
 require 'dry/cli'
 require 'mustache'
+require 'optparse'
 require 'djin/extensions/hash_extensions'
+require 'djin/extensions/object_extensions'
 require 'djin/entities/types'
 require 'djin/entities/task'
 require 'djin/entities/file_config'
@@ -19,6 +21,7 @@ require 'djin/interpreter/local_command_builder'
 require 'djin/interpreter'
 require 'djin/config_loader'
 require 'djin/executor'
+require 'djin/root_cli_parser'
 require 'djin/cli'
 require 'djin/task_contract'
 require 'djin/repositories/task_repository'
@@ -27,10 +30,12 @@ require 'djin/memory_cache'
 module Djin
   class Error < StandardError; end
 
-  def self.load_tasks!(file_path = Pathname.getwd.join('djin.yml'))
-    abort 'Error: djin.yml not found' unless file_path.exist?
+  using Djin::ObjectExtensions
 
-    file_config = ConfigLoader.load!(file_path)
+  def self.load_tasks!(*file_paths)
+    files = file_paths.presence || RootCliParser.parse![:files] || ['djin.yml']
+
+    file_config = ConfigLoader.load_files!(*files)
 
     # TODO: Make all tasks be under 'tasks' key, passing only the tasks here
     tasks = Interpreter.load!(file_config)

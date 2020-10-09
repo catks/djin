@@ -268,15 +268,37 @@ tasks:
         - ssh -t {{ssh_user}}@{{host}} tail -f /var/log/my_log
   ```
 
+### Loading custom files
+
+You can also specify a file to be read by djin with `-f`, eg: 
+
+```bash
+djin -f my_file.yml # Returns the help for all tasks in my_file
+djin -f my_file.yml build # Execute the build task defined in my_file.yml
+```
+
+You can also specify multiple files to join tasks between files:
+
+```bash
+# Mix the tasks
+djin -f my_file.yml -f my_file2.yml # Returns the help for all tasks in my_file
+djin -f my_file.yml -f my_file2.yml build # Execute the build task defined in my_file.yml or my_file2.yml
+```
+
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, run `djin release -- {{increment_option}}` (where {{incremment_option}} can be `--patch`, `--minor` or `major`), which will change version, update the CHANGELOG.md, create a new commit, create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
-## TODO:
 
-1. Adds a `-f` option to load custom djin files
+## TODO
+
+1. Enable multiple -f options to merge configuration between files
+2. Option to export tasks to Makefile
+3. djin-export docker image to create and sync makefiles
+4. include key option to add tasks in git repositories files (maybe with a local cache)
 
 ## Contributing
 

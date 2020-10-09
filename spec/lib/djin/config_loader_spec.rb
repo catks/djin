@@ -803,8 +803,9 @@ RSpec.describe Djin::ConfigLoader do
 
       context 'when the file doesnt exists' do
         let(:file_to_include_path) { 'no_ecziste' }
+
         it 'exits in error' do
-          expect { load! }.to raise_error(Djin::Interpreter::InvalidConfigFileError)
+          expect { load! }.to raise_error(Djin::ConfigLoader::FileNotFoundError)
         end
       end
 
