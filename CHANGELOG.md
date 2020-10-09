@@ -1,3 +1,6 @@
+## 0.10.0 - 08/10/2020
+ * [FEATURE] -f command option
+
 ## 0.9.0 - 17/09/2020
  * [FEATURE] Include Option
 
