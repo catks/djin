@@ -4,6 +4,7 @@ require 'bundler/setup'
 require 'byebug'
 
 require_relative 'support/test_file'
+require_relative 'support/test_remote_repository'
 require_relative 'support/helpers'
 
 require 'simplecov'

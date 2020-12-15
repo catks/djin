@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-16.04
     strategy:
       matrix:
-        ruby: [ '2.4', '2.5', '2.6' ]
+        ruby: [ '2.4', '2.5', '2.6', '2.7' ]
     name: Ruby ${{ matrix.ruby }}
     steps:
       - uses: actions/checkout@v2
@@ -28,6 +28,8 @@ jobs:
 
       - name: Run tests
         run: bundle exec rake
+        env:
+          TMP_TEST_FILE_FOLDER: '/tmp'
 
       - name: Publish code coverage
         run: |

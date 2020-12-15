@@ -37,7 +37,33 @@ module Djin
       end
     end
 
+    module RemoteConfig
+      class Fetch < Dry::CLI::Command
+        desc 'Fetchs missing remote configs'
+
+        def call(*)
+          Djin.remote_config_repository.fetch_all
+        end
+      end
+
+      class Clear < Dry::CLI::Command
+        desc 'clear downloaded remote configs'
+        option :all,
+               type: :boolean,
+               default: false,
+               desc: 'Remove all remote configs, not only the ones referenced in the current djin file'
+
+        def call(all:)
+          return Djin.remote_config_repository.clear_all if all
+
+          Djin.remote_config_repository.clear
+        end
+      end
+    end
+
     register '-f', File, aliases: ['--file']
     register '--version', Version, aliases: ['-v']
+    register 'remote-config fetch', RemoteConfig::Fetch
+    register 'remote-config clear', RemoteConfig::Clear
   end
 end

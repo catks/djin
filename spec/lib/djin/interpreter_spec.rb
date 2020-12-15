@@ -5,7 +5,7 @@ RSpec.describe Djin::Interpreter do
     subject(:load!) { described_class.load!(file_config) }
 
     let(:file_config) do
-      Djin::FileConfig.new(
+      Djin::MainConfig.new(
         djin_version: Djin::VERSION,
         tasks: params,
         raw_tasks: raw_params
