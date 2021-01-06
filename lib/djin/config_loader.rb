@@ -4,6 +4,8 @@ module Djin
   # TODO: Refactor this class to be the Interpreter
   #       class and use the current interpreter as
   #       a TaskLoader
+
+  # rubocop:disable Metrics/ClassLength
   class ConfigLoader
     using Djin::HashExtensions
     RESERVED_WORDS = %w[djin_version variables tasks include].freeze
@@ -194,4 +196,5 @@ module Djin
       raise FileNotFoundError, message % filename
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end

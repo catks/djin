@@ -3,14 +3,36 @@
 require 'pathname'
 
 class TestRemoteRepository
-  def initialize(name, version: 'master', base_directory: Djin.root_path.join('tmp'))
+  def initialize(name, version: 'master', base_directory: nil)
     @name = name
     @version = version
-    @base_directory = base_directory
+    @base_directory = base_directory || Pathname.new(ENV['TMP_TEST_FILE_FOLDER'] || Djin.root_path.join('tmp').to_s)
+  end
+
+  def join(*args)
+    to_pathname.join(*args)
+  end
+
+  def reset_all
+    reset_local
+    # git.push(force: true) fails as it tries to use ssh
+    `cd #{to_pathname} && git push --force origin master`
+  end
+
+  def reset_local
+    git.reset_hard('HEAD~1')
+  end
+
+  def exist?
+    to_pathname.exist?
   end
 
   def to_pathname
     @to_pathname ||= @base_directory.join(folder_name)
+  end
+
+  def git
+    @git ||= Git.open(to_pathname.to_s)
   end
 
   def folder_name
@@ -22,7 +44,7 @@ class TestRemoteRepository
   end
 
   def delete
-    to_pathname.rmtree
+    to_pathname.rmtree if to_pathname.exist?
   end
 
   def add_file(file_path, content:)

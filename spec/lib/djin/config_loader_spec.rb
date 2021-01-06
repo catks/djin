@@ -972,7 +972,8 @@ RSpec.describe Djin::ConfigLoader do
 
             expect(Djin.stderr)
               .to have_received(:puts)
-              .with("[WARNING] Missing https://github.com/catks/djin.git with version 'master', run `djin remote-config fetch` to fetch the config")
+              .with("[WARNING] Missing https://github.com/catks/djin.git with version 'master', " \
+                    'run `djin remote-config fetch` to fetch the config')
               .once
           end
         end

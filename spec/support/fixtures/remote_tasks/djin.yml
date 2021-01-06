@@ -1,9 +1,9 @@
 djin_version: '0.10.0'
 
 include:
-  - git: 'https://gitserver/myrepo.git'
+  - git: 'http://gitserver/myrepo.git'
     version: 'master'
-    file: 'examples/djin_lib/test.yml'
+    file: 'test.yml'
     context:
       variables:
         namespace: 'remote:'
