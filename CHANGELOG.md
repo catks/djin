@@ -1,3 +1,7 @@
+## 0.11.0 - 14/01/2021
+ * [FEATURE] Remote Configs
+ * [TECH] Adds Test Coverage
+
 ## 0.10.0 - 08/10/2020
  * [FEATURE] -f command option
 
