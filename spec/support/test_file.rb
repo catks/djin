@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
-require 'tempfile'
 require 'pathname'
 
 class TestFile
   def initialize(content)
     @content = content
-    @tempfile = Tempfile.new("djin_test_#{Time.now.to_i}")
+    # TODO: Investigate why using Djin.root_path is going to the wrong directory in CI
+    tempfolder = ENV['TMP_TEST_FILE_FOLDER'] || Djin.root_path.join('tmp').to_s
+    @tempfile = File.open(Pathname.new(tempfolder).join("djin_test_#{Time.now.to_i}_#{rand(100)}"), 'w+')
     create
   end
 
@@ -14,18 +15,13 @@ class TestFile
     Pathname.new(path)
   end
 
-  def path
-    @tempfile.path
-  end
-
-  def recreate
-    close
-    create
-  end
-
   def close
     @tempfile.close
-    @tempfile.unlink
+    File.delete(path) if File.exist?(path)
+  end
+
+  def path
+    @tempfile.to_path
   end
 
   private

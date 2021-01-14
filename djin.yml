@@ -9,10 +9,20 @@ tasks:
     docker-compose:
       service: app
       run:
-        commands: "cd /usr/src/djin && rspec {{args}}"
+        commands: "rspec {{args}}"
         <<: *default_run_options
     aliases:
       - rspec
+
+  lint:
+    description: Lint
+    docker-compose:
+      service: app
+      run:
+        commands: "rubocop {{args}}"
+        <<: *default_run_options
+    aliases:
+      - rubocop
 
   sh:
     description: Enter app service shell

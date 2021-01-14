@@ -7,11 +7,12 @@ RSpec.describe Djin::ConfigLoader do
     let(:config_file) { TestFile.new(config) }
 
     let(:djin_version) { Djin::VERSION }
+    let(:tmp_folder) { Djin.root_path.join('tmp') }
     let(:expected_raw_tasks) { expected_tasks }
     let(:expected_variables) { {} }
 
     let(:expected_file_config) do
-      Djin::FileConfig.new(
+      Djin::MainConfig.new(
         djin_version: djin_version,
         tasks: expected_tasks,
         raw_tasks: expected_raw_tasks,
@@ -21,6 +22,7 @@ RSpec.describe Djin::ConfigLoader do
 
     after do
       Djin.cache.clear
+      Djin.instance_variable_set('@warnings', [])
       config_file.close
     end
 
@@ -726,10 +728,16 @@ RSpec.describe Djin::ConfigLoader do
       end
 
       context 'when the file exists' do
-        let(:file_to_include_path) { TestFile.new(config_to_include).path }
+        let(:file_to_include) { TestFile.new(config_to_include) }
+        let(:file_to_include_path) { file_to_include.path }
+
+        after do
+          file_to_include.close
+        end
+
         # TODO: Improve runtime config variables behaviour, in the current implementation
         #       if multiple files are included with variables with the same name, only the
-        #       last variable is persisted in the FileConfig#variables, maybe create another
+        #       last variable is persisted in the MainConfig#variables, maybe create another
         #       field to persist (eg: runtime_variables) all the variables in the include -> context?
         let(:expected_variables) { { ruby_version: '2.6', namespace: 'some_namespace2:' } }
 
@@ -806,6 +814,168 @@ RSpec.describe Djin::ConfigLoader do
 
         it 'exits in error' do
           expect { load! }.to raise_error(Djin::ConfigLoader::FileNotFoundError)
+        end
+      end
+
+      context 'with a remote config' do
+        let(:config) do
+          {
+            'djin_version' => djin_version,
+            'include' => [
+              {
+                'file' => file_to_include_path,
+                'git' => 'https://github.com/catks/djin.git',
+                'version' => 'master',
+                'context' => {
+                  'variables' => {
+                    'namespace' => 'some_namespace:'
+                  }
+                }
+              },
+              {
+                'file' => file_to_include_path,
+                'git' => 'https://github.com/catks/djin.git',
+                'version' => 'master',
+                'context' => {
+                  'variables' => {
+                    'namespace' => 'some_namespace2:'
+                  }
+                }
+              }
+            ],
+            'tasks' => {
+              'default' => {
+                'docker' => {
+                  'image' => 'ruby:2.5',
+                  'run' => [%q(ruby -e 'puts "Test"')]
+                }
+              }
+            }
+          }.to_yaml
+        end
+
+        context 'when the repository is fetched' do
+          before do
+            allow(Pathname).to receive(:new).and_call_original
+            allow(Pathname).to receive(:new).with('~/.djin/remote').and_return(tmp_folder)
+            remote_repository.create
+          end
+
+          after do
+            remote_repository.delete
+          end
+
+          let(:remote_repository) { TestRemoteRepository.new('djin') }
+
+          context 'when the file exists' do
+            before do
+              remote_repository.add_file(file_to_include_path, content: config_to_include)
+            end
+
+            let(:file_to_include_path) { 'examples/djin_lib/test.yml' }
+
+            let(:expected_variables) { { ruby_version: '2.6', namespace: 'some_namespace2:' } }
+
+            let(:expected_tasks) do
+              {
+                '"some_namespace:default"' => {
+                  'docker' => {
+                    'image' => '"ruby:2.6"',
+                    'run' => [%q(ruby -e 'puts "Test"')]
+                  }
+                },
+                '"some_namespace2:default"' => {
+                  'docker' => {
+                    'image' => '"ruby:2.6"',
+                    'run' => [%q(ruby -e 'puts "Test"')]
+                  }
+                },
+                'default' => {
+                  'docker' => {
+                    'image' => 'ruby:2.5',
+                    'run' => [%q(ruby -e 'puts "Test"')]
+                  }
+                }
+              }
+            end
+
+            let(:expected_raw_tasks) do
+              {
+                '"{{namespace}}default"' => {
+                  'docker' => {
+                    'image' => '"ruby:{{ruby_version}}"',
+                    'run' => [%q(ruby -e 'puts "Test"')]
+                  }
+                },
+                'default' => {
+                  'docker' => {
+                    'image' => 'ruby:2.5',
+                    'run' => [%q(ruby -e 'puts "Test"')]
+                  }
+                }
+              }
+            end
+
+            it 'returns the expected file config' do
+              is_expected.to eq(expected_file_config)
+            end
+          end
+
+          context 'when the file doesnt exists' do
+            let(:file_to_include_path) { 'examples/djin_lib/no_ecziste.yml' }
+
+            it 'exits in error' do
+              # TODO: Validate error message
+              expect { load! }.to raise_error(Djin::ConfigLoader::FileNotFoundError)
+            end
+          end
+        end
+
+        context 'when the repository is not fetched' do
+          before do
+            allow(Pathname).to receive(:new).and_call_original
+            allow(Pathname).to receive(:new).with('~/.djin/remote').and_return(tmp_folder)
+          end
+
+          let(:file_to_include_path) { 'examples/djin_lib/test.yml' }
+
+          let(:expected_tasks) do
+            {
+              'default' => {
+                'docker' => {
+                  'image' => 'ruby:2.5',
+                  'run' => [%q(ruby -e 'puts "Test"')]
+                }
+              }
+            }
+          end
+
+          let(:expected_raw_tasks) do
+            {
+              'default' => {
+                'docker' => {
+                  'image' => 'ruby:2.5',
+                  'run' => [%q(ruby -e 'puts "Test"')]
+                }
+              }
+            }
+          end
+
+          it 'returns the expected file config without remote tasks' do
+            is_expected.to eq(expected_file_config)
+          end
+
+          it 'raises a warning' do
+            allow(Djin.stderr).to receive(:puts)
+
+            load!
+
+            expect(Djin.stderr)
+              .to have_received(:puts)
+              .with("[WARNING] Missing https://github.com/catks/djin.git with version 'master', " \
+                    'run `djin remote-config fetch` to fetch the config')
+              .once
+          end
         end
       end
 

@@ -14,7 +14,7 @@ Djin is distributed as a Ruby Gem, to install simple run:
 
 ### With Rbenv
 
-If you use Rbenv you can install djin only once and create a alias in your .basrc, .zshrc, etc:
+If you use Rbenv you can install djin only once and create an alias in your .basrc, .zshrc, etc:
 
 #### ZSH
     $ RBENV_VERSION=$(rbenv global) gem install djin && echo "alias djin='RBENV_VERSION=$(rbenv global) djin'" >> ~/.zshrc
@@ -59,7 +59,7 @@ djin_version: '0.10.0'
 _default_run_options: &default_run_options
   options: "--rm"
 
-tasks: 
+tasks:
   "db:create":
     docker-compose:
       service: app
@@ -180,13 +180,13 @@ tasks:
 
 ```
 
-With that you can pass custom args after `--`, eg: `djin rubocop -- --parallel`, which wil make djin runs `rubocop --parallel` inside the service `app`.
+With that, you can pass custom args after `--`, eg: `djin rubocop -- --parallel`, which will make djin runs `rubocop --parallel` inside the service `app`.
 
 Under the hood djin uses [Mustache](https://mustache.github.io/), so you can use other features like conditionals: `{{#IS_ENABLE}} Enabled {{/IS_ENABLE}}` (for args use the `args?`, eg: `{{#args?}} {{args}} --and-other-thing{{/args?}}`), to see more more options you can access this [Link](https://mustache.github.io/mustache.5.html)
 
 ### Reusing tasks
 
-If you have multiple tasks with similar behaviour and with small differences you can use the `include` keyword, so this:
+If you have multiple tasks with similar behavior and with small differences you can use the `include` keyword, so this:
 
 ```yaml
 djin_version: '0.10.0'
@@ -267,11 +267,30 @@ tasks:
     local:
       run:
         - ssh -t {{ssh_user}}@{{host}} tail -f /var/log/my_log
-  ```
+```
+
+You can also reuse tasks in some git repository, to do that you need to declare a git source and optionally a version:
+
+```yaml
+djin_version: '0.10.0'
+
+include:
+  - git: 'https://github.com/catks/djin.git'
+    version: 'master'
+    file: 'examples/djin_lib/test.yml'
+    context:
+      variables:
+        namespace: 'remote:'
+
+```
+
+After that run `djin remote-config fetch` to fetch the repo and you can start using the tasks (All remote repos are cloned in `~/.djin/remote`)
+
+See `djin remote-config` to learn more.
 
 ### Loading custom files
 
-You can also specify a file to be read by djin with `-f`, eg: 
+You can also specify a file to be read by djin with `-f`, eg:
 
 ```bash
 djin -f my_file.yml # Returns the help for all tasks in my_file
@@ -299,7 +318,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 1. Enable multiple -f options to merge configuration between files
 2. Option to export tasks to Makefile
 3. djin-export docker image to create and sync makefiles
-4. include key option to add tasks in git repositories files (maybe with a local cache)
+4. include a key option to add tasks in git repositories files (maybe with a local cache)
 
 ## Contributing
 

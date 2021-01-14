@@ -1,19 +1,16 @@
 name: Ruby
 
-on: [push]
+on: [push, workflow_dispatch]
 
 jobs:
   build:
     runs-on: ubuntu-16.04
     strategy:
       matrix:
-        ruby: [ '2.4', '2.5', '2.6' ]
+        ruby: [ '2.5', '2.6', '2.7' ]
     name: Ruby ${{ matrix.ruby }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby }}
 
       - name: Setup Code Climate test-reporter
         run: |
@@ -21,18 +18,20 @@ jobs:
           chmod +x ./cc-test-reporter
           ./cc-test-reporter before-build
 
-      - name: Install Gems
+      - name: Build
         run: |
-          gem install bundler
-          bundle install --jobs 4 --retry 3
+          docker-compose -p djin_ruby_${{ matrix.ruby }} build --build-arg ${{ matrix.ruby }} app
 
       - name: Run tests
-        run: bundle exec rake
+        run: |
+          docker-compose -p djin_ruby_${{ matrix.ruby }} run --rm app rspec
+        env:
+          TMP_TEST_FILE_FOLDER: '/tmp'
 
       - name: Publish code coverage
         run: |
-          export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
-          ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}
+          # TODO: Move to script
+          docker-compose -p djin_ruby_${{ matrix.ruby }} run --rm app 'export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}" && ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}'
 
   lint:
     runs-on: ubuntu-16.04

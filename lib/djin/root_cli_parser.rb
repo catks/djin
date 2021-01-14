@@ -22,6 +22,10 @@ module Djin
             opts.on('-h', '--help') do
               throw :root_cli_exit
             end
+
+            opts.on('--all') do
+              throw :root_cli_exit
+            end
           end.parse(args)
         end
 

@@ -4,11 +4,13 @@ module Djin
   # TODO: Refactor this class to be the Interpreter
   #       class and use the current interpreter as
   #       a TaskLoader
+
+  # rubocop:disable Metrics/ClassLength
   class ConfigLoader
     using Djin::HashExtensions
     RESERVED_WORDS = %w[djin_version variables tasks include].freeze
 
-    # CHange Base Error
+    # Change Base Error
     FileNotFoundError = Class.new(Interpreter::InvalidConfigurationError)
 
     def self.load_files!(*files, runtime_config: {}, base_directory: '.')
@@ -25,7 +27,7 @@ module Djin
       @base_directory = Pathname.new(base_directory)
       @template_file = @base_directory.join(template_file_path)
 
-      raise FileNotFoundError, "File '#{@template_file}' not found" unless @template_file.exist?
+      file_not_found!(@template_file) unless @template_file.exist?
 
       @template_file_content = Djin.cache.fetch(@template_file.realpath.to_s) { @template_file.read }
       @runtime_config = runtime_config
@@ -33,6 +35,7 @@ module Djin
 
     def load!
       validate_version!
+      validate_missing_config!
 
       file_config
     end
@@ -40,11 +43,12 @@ module Djin
     private
 
     def file_config
-      FileConfig.new(
+      MainConfig.new(
         djin_version: version,
         variables: variables,
         tasks: tasks,
-        raw_tasks: raw_tasks
+        raw_tasks: raw_tasks,
+        include_configs: @include_configs || []
       )
     end
 
@@ -66,8 +70,11 @@ module Djin
     end
 
     def legacy_tasks
-      warn '[DEPRECATED] Root tasks are deprecated and will be removed in Djin 1.0.0,' \
-           ' put the tasks under \'tasks\' keyword'
+      Djin.warn_once(
+        'Root tasks are deprecated and will be removed in Djin 1.0.0,' \
+        ' put the tasks under \'tasks\' keyword',
+        type: 'DEPRECATED'
+      )
 
       rendered_djin_config.except(*RESERVED_WORDS).reject { |task| task.start_with?('_') }
     end
@@ -94,11 +101,37 @@ module Djin
       included_config.raw_tasks
     end
 
+    # TODO: Rename method
     def included_config
-      @included_config ||= raw_djin_config['include']&.map do |tasks_reference|
-        ConfigLoader.load!(tasks_reference['file'], base_directory: @template_file.dirname,
-                                                    runtime_config: tasks_reference['context'] || {})
-      end&.reduce(:deep_merge)
+      @included_config ||= begin
+                             present_include_configs&.map do |present_include|
+                               ConfigLoader.load!(present_include.file, base_directory: @template_file.dirname,
+                                                                        # TODO: Rename to context_config
+                                                                        runtime_config: present_include.context)
+                             end&.reduce(:deep_merge)
+                           end
+    end
+
+    def present_include_configs
+      include_configs&.select(&:present?)
+    end
+
+    def missing_include_configs
+      include_configs&.select(&:missing?)
+    end
+
+    # TODO: Refactor to move include methods to a specific IncludeConfigLoader, maybe rename IncludeResolver
+    def include_configs
+      @include_configs ||= begin
+                             # TODO: Rename the resolved variables
+                             resolver = IncludeResolver.new(base_directory: @template_file.dirname)
+
+                             include_djin_config = raw_djin_config['include'] || []
+
+                             include_djin_config.map do |include_config|
+                               resolver.call(include_config)
+                             end
+                           end
     end
 
     def args
@@ -142,5 +175,26 @@ module Djin
 
       raise Interpreter::VersionNotSupportedError, "Version #{version} is not supported, use #{Djin::VERSION} or higher"
     end
+
+    def validate_missing_config!
+      missing_include_configs.each do |ic|
+        file_not_found!(ic.full_path) if ic.type == :local
+
+        missing_file_remote_error = "#{ic.git} exists but is missing %s," \
+          'if the file exists in upstream run djin remote-config fetch to fix'
+
+        file_not_found!(ic.full_path, missing_file_remote_error) if ic.type == :remote && ic.repository_fetched?
+
+        if ic.type == :remote
+          Djin.warn_once "Missing #{ic.git} with version '#{ic.version}', " \
+            'run `djin remote-config fetch` to fetch the config'
+        end
+      end
+    end
+
+    def file_not_found!(filename, message = "File '%s' not found")
+      raise FileNotFoundError, message % filename
+    end
   end
+  # rubocop:enable Metrics/ClassLength
 end

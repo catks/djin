@@ -2,8 +2,10 @@
 
 require 'bundler/setup'
 require 'byebug'
+require 'factory_bot'
 
 require_relative 'support/test_file'
+require_relative 'support/test_remote_repository'
 require_relative 'support/helpers'
 
 require 'simplecov'
@@ -22,11 +24,18 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.before(:all) do
-    require 'bundler/gem_tasks'
-    Rake::Task['install'].invoke
-    require 'open3'
+  config.before(type: :feature) do
+    @djin_installation ||= begin
+                             require 'bundler/gem_tasks'
+                             Rake::Task['install'].invoke
+                             require 'open3'
+                           end
+  end
+
+  config.before(:suite) do
+    FactoryBot.find_definitions
   end
 
   config.include(Helpers)
+  config.include FactoryBot::Syntax::Methods
 end

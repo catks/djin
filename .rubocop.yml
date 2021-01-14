@@ -3,6 +3,11 @@ inherit_from: .rubocop_todo.yml
 Style/Documentation:
   Enabled: false
 
+Style/BlockDelimiters:
+  Exclude:
+    - spec/**/*
+
 Metrics/BlockLength:
   Exclude:
     - spec/**/*
+    - djin.gemspec 

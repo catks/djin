@@ -1,0 +1,12 @@
+djin_version: '0.10.0'
+
+_default_run_options: &default_run_options
+  options: "--rm --entrypoint=''"
+
+tasks:
+  "{{namespace}}unit":
+    docker-compose:
+      service: app
+      run:
+        commands: "cd /usr/src/djin && rspec {{args}}"
+        <<: *default_run_options

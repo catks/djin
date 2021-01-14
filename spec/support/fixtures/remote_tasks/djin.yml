@@ -1,0 +1,9 @@
+djin_version: '0.10.0'
+
+include:
+  - git: 'http://gitserver/myrepo.git'
+    version: 'master'
+    file: 'test.yml'
+    context:
+      variables:
+        namespace: 'remote:'
