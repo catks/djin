@@ -58,6 +58,33 @@ RSpec.describe Djin::RemoteConfigRepository, type: :repository do
             .to eq(Djin.root_path.join('docker/git_server/repos/myrepo2/another_test.yml').read)
         end
       end
+
+      context 'with the same repo reference' do
+        let(:remote_configs) do
+          [
+            build(:include_config, missing: true, base_directory: djin_remote_folder.to_s),
+            build(:include_config, missing: true, base_directory: djin_remote_folder.to_s)
+          ]
+        end
+
+        it 'clone repository to remote folder' do
+          expect {
+            fetch_all
+          }.to change { repo.exist? }
+            .from(false).to(true)
+
+          expect(repo.join('test.yml').read)
+            .to eq(Djin.root_path.join('docker/git_server/repos/myrepo/test.yml').read)
+        end
+
+        it 'try to clone repository once' do
+          allow(Git).to receive(:clone).and_call_original
+
+          fetch_all
+
+          expect(Git).to have_received(:clone).once
+        end
+      end
     end
 
     context 'when remote config exist' do
@@ -93,5 +120,8 @@ RSpec.describe Djin::RemoteConfigRepository, type: :repository do
         }.to change { repo.join('new_file').exist? }.from(false).to(true)
       end
     end
+  end
+
+  xdescribe '#clear' do
   end
 end

@@ -23,11 +23,12 @@ module Djin
     end
 
     def fetch_all
-      remote_configs.each do |rc|
+      remote_configs_by_folders.each do |rc|
         git_folder = base_path.join(rc.folder_name).expand_path
 
         # TODO: Extract STDEER Output, maybe publishing events and subscribing a observer for the logs.
         stderr.puts "Remote Path: #{base_path.expand_path}"
+
         git_repo = rc.missing? ? clone_repo(git_folder, rc) : fetch_repo(git_folder, rc)
 
         stderr.puts "Checking out to '#{rc.version}'"
@@ -37,7 +38,7 @@ module Djin
     end
 
     def clear
-      remote_configs.each do |rc|
+      remote_configs_by_folders.each do |rc|
         git_folder = base_path.join(rc.folder_name)
 
         stderr.puts "Removing #{rc.folder_name} repository..."
@@ -57,6 +58,13 @@ module Djin
 
     attr_accessor :stderr
 
+    def remote_configs_by_folders
+      @remote_configs_by_folders ||= remote_configs
+                                     .group_by(&:folder_name)
+                                     .values
+                                     .map(&:first)
+    end
+
     def remove_remote_folder
       stderr.puts "Removing #{base_path}..."
       `rm -rf #{base_path}`
@@ -64,7 +72,7 @@ module Djin
 
     def clone_repo(git_folder, remote_config)
       stderr.puts "Missing #{remote_config.folder_name} repository, cloning in #{git_folder}"
-      Git.clone(remote_config.git, git_folder, progress: true)
+      Git.clone(remote_config.git.to_s, git_folder.to_s, branch: remote_config.version)
     end
 
     def fetch_repo(git_folder, remote_config)
