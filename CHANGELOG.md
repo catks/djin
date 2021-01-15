@@ -1,3 +1,6 @@
+## 0.11.1 - 15/01/2021
+ * [FIX] remote-config fetch with same repo reference
+
 ## 0.11.0 - 14/01/2021
  * [FEATURE] Remote Configs
  * [TECH] Adds Test Coverage
