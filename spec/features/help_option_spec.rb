@@ -9,7 +9,7 @@ RSpec.describe '--help option', type: :feature do
         djin --version                                  # Prints Djin Version
         djin -f FILEPATH                                # Specify a djin file to load (default: djin.yml)
         djin lint                                       # Lint
-        djin release                                    # Runs: verto tag up {{args}} && bundle exec rake release
+        djin release                                    # Runs: (source ~/.zshrc || true) && verto tag up {{args}} && bundle exec rake release
         djin remote-config [SUBCOMMAND]
         djin run                                        # Runs: docker-compose run --rm --entrypoint='' app sh -c "sh -c '{{args}}'"
         djin sh                                         # Enter app service shell
