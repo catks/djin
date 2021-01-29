@@ -1,4 +1,4 @@
-djin_version: '0.11.1'
+djin_version: '0.11.2'
 
 tasks:
   hello:
