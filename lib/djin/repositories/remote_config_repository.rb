@@ -33,7 +33,7 @@ module Djin
 
         stderr.puts "Checking out to '#{rc.version}'"
         git_repo.checkout(rc.version)
-        git_repo.pull
+        git_repo.pull('origin', rc.version)
       end
     end
 

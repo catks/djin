@@ -11,8 +11,19 @@ RSpec.describe Djin::RemoteConfigRepository, type: :repository do
       instance.fetch_all
     end
 
-    let(:repo) { TestRemoteRepository.new('myrepo', base_directory: djin_remote_folder) }
-    let(:repo2) { TestRemoteRepository.new('myrepo2', base_directory: djin_remote_folder) }
+    let(:repo) do
+      TestRemoteRepository.new('myrepo',
+                               base_directory: djin_remote_folder,
+                               version: version,
+                               git_uri: remote_configs.first.git)
+    end
+    let(:repo2) do
+      TestRemoteRepository.new('myrepo2',
+                               base_directory: djin_remote_folder,
+                               version: version,
+                               git_uri: remote_configs.last.git)
+    end
+    let(:version) { 'master' }
 
     after do
       repo.delete
@@ -89,10 +100,9 @@ RSpec.describe Djin::RemoteConfigRepository, type: :repository do
 
     context 'when remote config exist' do
       before do
-        described_class.new(
-          [build(:include_config, missing: true, base_directory: djin_remote_folder.to_s)],
-          base_path: djin_remote_folder
-        ).fetch_all
+        repo.clone_git_repository
+        repo.git.checkout(version, b: true) unless version == 'master'
+        repo.git.push('origin', version, f: true)
 
         repo.add_file('new_file', content: 'New file')
 
@@ -100,7 +110,7 @@ RSpec.describe Djin::RemoteConfigRepository, type: :repository do
         repo.git.config('user.email', 'test@email.com')
         repo.git.add('new_file')
         repo.git.commit('New File')
-        repo.git.push
+        repo.git.push('origin', version)
         repo.reset_local
       end
 
@@ -110,7 +120,7 @@ RSpec.describe Djin::RemoteConfigRepository, type: :repository do
 
       let(:remote_configs) do
         [
-          build(:include_config, missing: false, base_directory: djin_remote_folder.to_s)
+          build(:include_config, missing: false, version: version, base_directory: djin_remote_folder.to_s)
         ]
       end
 
@@ -118,6 +128,16 @@ RSpec.describe Djin::RemoteConfigRepository, type: :repository do
         expect {
           fetch_all
         }.to change { repo.join('new_file').exist? }.from(false).to(true)
+      end
+
+      context 'with a version with /' do
+        let(:version) { 'feature/some_feature' }
+
+        it 'update repository' do
+          expect {
+            fetch_all
+          }.to change { repo.join('new_file').exist? }.from(false).to(true)
+        end
       end
     end
   end
