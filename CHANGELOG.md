@@ -1,3 +1,6 @@
+## 0.11.3 - 29/01/2021
+ * [FIX] --version, -v
+
 ## 0.11.2 - 29/01/2021
  * [FIX] Remote-Config Fetch for custom Branches
  * [FIX] Integration Specs
