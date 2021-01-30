@@ -13,24 +13,34 @@ module Djin
         #       to only remove the -f/--file option
         #       and bypass everything else to Dry::CLI
         catch(:root_cli_exit) do
-          OptionParser.new do |opts|
-            opts.on('-f FILE', '--file FILE') do |v|
-              options[:files] ||= []
-              options[:files] << v
-            end
-
-            opts.on('-h', '--help') do
-              throw :root_cli_exit
-            end
-
-            opts.on('--all') do
-              throw :root_cli_exit
-            end
-          end.parse(args)
+          parser(options).parse(args)
         end
 
         remove_file_args!(args)
         options
+      end
+
+      private
+
+      def parser(options)
+        OptionParser.new do |opts|
+          opts.on('-f FILE', '--file FILE') do |v|
+            options[:files] ||= []
+            options[:files] << v
+          end
+
+          opts.on('-v', '--version') do
+            throw :root_cli_exit
+          end
+
+          opts.on('-h', '--help') do
+            throw :root_cli_exit
+          end
+
+          opts.on('--all') do
+            throw :root_cli_exit
+          end
+        end
       end
 
       def remove_file_args!(args)

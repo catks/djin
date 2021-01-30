@@ -1,6 +1,6 @@
 ## 0.11.2 - 29/01/2021
  * [FIX] Remote-Config Fetch for custom Branches
-  [FIX] Integration Specs
+ * [FIX] Integration Specs
 
 ## 0.11.1 - 15/01/2021
  * [FIX] remote-config fetch with same repo reference
