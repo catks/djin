@@ -10,12 +10,14 @@ require 'dry/cli'
 require 'mustache'
 require 'optparse'
 require 'git'
+require 'djin/errors'
 require 'djin/extensions/hash_extensions'
 require 'djin/extensions/object_extensions'
 require 'djin/entities/types'
 require 'djin/entities/task'
 require 'djin/entities/include_config.rb'
 require 'djin/entities/main_config'
+require 'djin/include_contract'
 require 'djin/interpreter/base_command_builder'
 require 'djin/interpreter/docker_command_builder'
 require 'djin/interpreter/docker_compose_command_builder'
@@ -51,7 +53,7 @@ module Djin
       @remote_config_repository = RemoteConfigRepository.new(remote_configs)
 
       CLI.load_tasks!(tasks)
-    rescue Djin::Interpreter::InvalidConfigurationError => e
+    rescue Djin::InvalidConfigurationError => e
       error_name = e.class.name.split('::').last
       abort("[#{error_name}] #{e.message}")
     end

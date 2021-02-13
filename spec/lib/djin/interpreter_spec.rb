@@ -419,7 +419,7 @@ RSpec.describe Djin::Interpreter do
         end
 
         it 'exits in error' do
-          expect { load! }.to raise_error(described_class::InvalidSyntaxError) do |error|
+          expect { load! }.to raise_error(Djin::InvalidSyntaxError) do |error|
             expect(error.message)
               .to eq('{:default=>{:depends_on=>["image or build param is required for docker tasks"]}}')
           end

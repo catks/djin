@@ -1,0 +1,7 @@
+djin_version: '0.11.3'
+
+include:
+  - git: 'http:gitserver/myrepo.git'
+    version: {}
+    file: []
+    context: []

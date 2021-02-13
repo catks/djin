@@ -2,15 +2,13 @@
 
 module Djin
   # TODO: Refactor this class to delegate the responsability of complex fields
-  #       to a specific Loader (like include for IncludeConfigLoader)
+  #       to a specific Loader (like include for IncludeConfigLoader),
+  #       maybe renaming to RootConfigLoader
 
   # rubocop:disable Metrics/ClassLength
   class ConfigLoader
     using Djin::HashExtensions
     RESERVED_WORDS = %w[djin_version variables tasks include].freeze
-
-    # Change Base Error
-    FileNotFoundError = Class.new(Interpreter::InvalidConfigurationError)
 
     def self.load_files!(*files, context_config: {}, base_directory: '.')
       files.map do |file_path|
@@ -139,7 +137,7 @@ module Djin
     def raw_djin_config
       @raw_djin_config ||= yaml_load(@template_file_content).deep_merge(@context_config)
     rescue Psych::SyntaxError => e
-      raise Interpreter::InvalidConfigFileError, "File: #{@template_file.realpath}\n  #{e.message}"
+      raise InvalidConfigFileError, "File: #{@template_file.realpath}\n  #{e.message}"
     end
 
     def rendered_djin_config
@@ -159,11 +157,11 @@ module Djin
     end
 
     def validate_version!
-      raise Interpreter::MissingVersionError, 'Missing djin_version' unless version
+      raise MissingVersionError, 'Missing djin_version' unless version
 
       return if file_config.version_supported?
 
-      raise Interpreter::VersionNotSupportedError, "Version #{version} is not supported, use #{Djin::VERSION} or higher"
+      raise VersionNotSupportedError, "Version #{version} is not supported, use #{Djin::VERSION} or higher"
     end
 
     def validate_missing_config!

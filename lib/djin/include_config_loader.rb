@@ -25,7 +25,13 @@ module Djin
     def load_configs(include_djin_config)
       include_djin_config ||= []
 
+      include_contract = IncludeContract.new
+
       include_djin_config.map do |include_params|
+        result = include_contract.call(include_params)
+
+        raise InvalidSyntaxError, { include: result.errors.to_h } if result.failure?
+
         resolve_include(include_params)
       end
     end
