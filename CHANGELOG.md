@@ -1,3 +1,6 @@
+## 0.11.4 - 12/02/2021
+ * [PATCH] Include Config Validations
+
 ## 0.11.3 - 29/01/2021
  * [FIX] --version, -v
 
