@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe 'Run Tasks', type: :feature do
-  context 'without a task to execute' do
+  context 'with a task to execute' do
     it 'executes the command' do
       run_command('djin hello', path: 'spec/support/fixtures/')
 
@@ -45,6 +45,18 @@ RSpec.describe 'Run Tasks', type: :feature do
 
           expect(command_stdout).to eq(expected)
         end
+      end
+    end
+
+    context 'with a invalid config' do
+      it 'return a error' do
+        run_command('djin hello', path: 'spec/support/fixtures/invalid/')
+
+        expected = %([InvalidSyntaxError] {:include=>{:context=>["must be filled"], ) +
+                   %(:file=>["must be filled"], :version=>["must be filled"], ) +
+                   %(:git=>["Invalid git uri in: http:gitserver/myrepo.git"]}}\n)
+
+        expect(command_stderr).to eq(expected)
       end
     end
   end

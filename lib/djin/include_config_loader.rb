@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 module Djin
-  class IncludeResolver
+  class IncludeConfigLoader
     using ObjectExtensions
     using HashExtensions
+
+    def self.load!(include_djin_config, **options)
+      new(**options).load!(include_djin_config)
+    end
 
     def initialize(base_directory: '.', remote_directory: '~/.djin/remote', entity_class: Djin::IncludeConfig)
       # TODO: Use chain of responsability
@@ -12,14 +16,32 @@ module Djin
       @entity_class = entity_class
     end
 
-    def call(params)
+    def load!(include_djin_config)
+      load_configs(include_djin_config)
+    end
+
+    private
+
+    def load_configs(include_djin_config)
+      include_djin_config ||= []
+
+      include_contract = IncludeContract.new
+
+      include_djin_config.map do |include_params|
+        result = include_contract.call(include_params)
+
+        raise InvalidSyntaxError, { include: result.errors.to_h } if result.failure?
+
+        resolve_include(include_params)
+      end
+    end
+
+    def resolve_include(params)
       include_config_params = remote_handler(params)
       include_config_params ||= local_handler(params)
 
       build_entity(include_config_params)
     end
-
-    private
 
     def remote_handler(params)
       return if params['git'].blank?

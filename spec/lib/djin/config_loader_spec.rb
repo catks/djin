@@ -310,7 +310,7 @@ RSpec.describe Djin::ConfigLoader do
         end
 
         it 'exits in error' do
-          expect { load! }.to raise_error(Djin::Interpreter::MissingVersionError)
+          expect { load! }.to raise_error(Djin::MissingVersionError)
         end
       end
 
@@ -329,7 +329,7 @@ RSpec.describe Djin::ConfigLoader do
         end
 
         it 'exits in error' do
-          expect { load! }.to raise_error(Djin::Interpreter::VersionNotSupportedError)
+          expect { load! }.to raise_error(Djin::VersionNotSupportedError)
         end
       end
     end
@@ -677,6 +677,7 @@ RSpec.describe Djin::ConfigLoader do
       end
     end
 
+    # TODO: Move some specs to IncludeConfigLoader Spec
     context 'with include option' do
       let(:config) do
         {
@@ -813,7 +814,7 @@ RSpec.describe Djin::ConfigLoader do
         let(:file_to_include_path) { 'no_ecziste' }
 
         it 'exits in error' do
-          expect { load! }.to raise_error(Djin::ConfigLoader::FileNotFoundError)
+          expect { load! }.to raise_error(Djin::FileNotFoundError)
         end
       end
 
@@ -926,7 +927,7 @@ RSpec.describe Djin::ConfigLoader do
 
             it 'exits in error' do
               # TODO: Validate error message
-              expect { load! }.to raise_error(Djin::ConfigLoader::FileNotFoundError)
+              expect { load! }.to raise_error(Djin::FileNotFoundError)
             end
           end
         end
@@ -999,7 +1000,7 @@ RSpec.describe Djin::ConfigLoader do
       end
 
       it 'exits in error' do
-        expect { load! }.to raise_error(Djin::Interpreter::MissingVersionError)
+        expect { load! }.to raise_error(Djin::MissingVersionError)
       end
     end
 
@@ -1020,7 +1021,7 @@ RSpec.describe Djin::ConfigLoader do
       end
 
       it 'exits in error' do
-        expect { load! }.to raise_error(Djin::Interpreter::VersionNotSupportedError)
+        expect { load! }.to raise_error(Djin::VersionNotSupportedError)
       end
     end
 
@@ -1033,7 +1034,7 @@ RSpec.describe Djin::ConfigLoader do
       end
 
       it 'exits in error' do
-        expect { load! }.to raise_error(Djin::Interpreter::InvalidConfigFileError)
+        expect { load! }.to raise_error(Djin::InvalidConfigFileError)
       end
     end
   end

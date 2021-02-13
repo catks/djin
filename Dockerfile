@@ -2,6 +2,7 @@ ARG RUBY_VERSION
 FROM ruby:${RUBY_VERSION:-2.6.5}-alpine AS builder
 
 ENV BUILD_PACKAGES build-base git
+ENV DEV_PACKAGES bash
 
 RUN mkdir /bundle
 
@@ -19,6 +20,9 @@ RUN gem install bundler -v 2.1.4
 RUN bundle install
 
 FROM builder AS dev
+
+RUN apk add $DEV_PACKAGES && \
+    rm -rf /var/cache/apk/*
 
 WORKDIR /usr/src/djin
 
@@ -45,4 +49,4 @@ RUN rake install
 
 WORKDIR /usr/src/project
 
-ENTRYPOINT ["/usr/src/verto/docker-entrypoint.sh"]
+ENTRYPOINT ["/usr/src/djin/docker-entrypoint.sh"]

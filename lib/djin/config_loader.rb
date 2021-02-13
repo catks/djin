@@ -1,36 +1,33 @@
 # frozen_string_literal: true
 
 module Djin
-  # TODO: Refactor this class to be the Interpreter
-  #       class and use the current interpreter as
-  #       a TaskLoader
+  # TODO: Refactor this class to delegate the responsability of complex fields
+  #       to a specific Loader (like include for IncludeConfigLoader),
+  #       maybe renaming to RootConfigLoader
 
   # rubocop:disable Metrics/ClassLength
   class ConfigLoader
     using Djin::HashExtensions
     RESERVED_WORDS = %w[djin_version variables tasks include].freeze
 
-    # Change Base Error
-    FileNotFoundError = Class.new(Interpreter::InvalidConfigurationError)
-
-    def self.load_files!(*files, runtime_config: {}, base_directory: '.')
+    def self.load_files!(*files, context_config: {}, base_directory: '.')
       files.map do |file_path|
-        ConfigLoader.load!(file_path, runtime_config: runtime_config, base_directory: base_directory)
+        ConfigLoader.load!(file_path, context_config: context_config, base_directory: base_directory)
       end&.reduce(:deep_merge)
     end
 
-    def self.load!(template_file_path, runtime_config: {}, base_directory: '.')
-      new(template_file_path, runtime_config: runtime_config, base_directory: base_directory).load!
+    def self.load!(template_file_path, context_config: {}, base_directory: '.')
+      new(template_file_path, context_config: context_config, base_directory: base_directory).load!
     end
 
-    def initialize(template_file_path, runtime_config: {}, base_directory: '.')
+    def initialize(template_file_path, context_config: {}, base_directory: '.')
       @base_directory = Pathname.new(base_directory)
       @template_file = @base_directory.join(template_file_path)
 
       file_not_found!(@template_file) unless @template_file.exist?
 
       @template_file_content = Djin.cache.fetch(@template_file.realpath.to_s) { @template_file.read }
-      @runtime_config = runtime_config
+      @context_config = context_config
     end
 
     def load!
@@ -107,7 +104,7 @@ module Djin
                              present_include_configs&.map do |present_include|
                                ConfigLoader.load!(present_include.file, base_directory: @template_file.dirname,
                                                                         # TODO: Rename to context_config
-                                                                        runtime_config: present_include.context)
+                                                                        context_config: present_include.context)
                              end&.reduce(:deep_merge)
                            end
     end
@@ -120,18 +117,9 @@ module Djin
       include_configs&.select(&:missing?)
     end
 
-    # TODO: Refactor to move include methods to a specific IncludeConfigLoader, maybe rename IncludeResolver
     def include_configs
-      @include_configs ||= begin
-                             # TODO: Rename the resolved variables
-                             resolver = IncludeResolver.new(base_directory: @template_file.dirname)
-
-                             include_djin_config = raw_djin_config['include'] || []
-
-                             include_djin_config.map do |include_config|
-                               resolver.call(include_config)
-                             end
-                           end
+      @include_configs ||= Djin::IncludeConfigLoader.load!(raw_djin_config['include'],
+                                                           base_directory: @template_file.dirname)
     end
 
     def args
@@ -147,9 +135,9 @@ module Djin
     end
 
     def raw_djin_config
-      @raw_djin_config ||= yaml_load(@template_file_content).deep_merge(@runtime_config)
+      @raw_djin_config ||= yaml_load(@template_file_content).deep_merge(@context_config)
     rescue Psych::SyntaxError => e
-      raise Interpreter::InvalidConfigFileError, "File: #{@template_file.realpath}\n  #{e.message}"
+      raise InvalidConfigFileError, "File: #{@template_file.realpath}\n  #{e.message}"
     end
 
     def rendered_djin_config
@@ -160,7 +148,7 @@ module Djin
                                                                   args: args.join(' '),
                                                                   args?: args.any?,
                                                                   **locals)
-                                  yaml_load(rendered_yaml).merge(@runtime_config)
+                                  yaml_load(rendered_yaml).merge(@context_config)
                                 end
     end
 
@@ -169,11 +157,11 @@ module Djin
     end
 
     def validate_version!
-      raise Interpreter::MissingVersionError, 'Missing djin_version' unless version
+      raise MissingVersionError, 'Missing djin_version' unless version
 
       return if file_config.version_supported?
 
-      raise Interpreter::VersionNotSupportedError, "Version #{version} is not supported, use #{Djin::VERSION} or higher"
+      raise VersionNotSupportedError, "Version #{version} is not supported, use #{Djin::VERSION} or higher"
     end
 
     def validate_missing_config!
