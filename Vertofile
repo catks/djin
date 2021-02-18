@@ -24,9 +24,10 @@ context(branch('master')) {
       file(filename).replace(latest_version.to_s, new_version.to_s)
     end
 
+    file('install.sh').replace_all(latest_version.to_s, new_version.to_s)
     file('README.md').replace_all(latest_version.to_s, new_version.to_s)
 
-    git!("add #{files_to_change_version_once.join(' ')} README.md")
+    git!("add #{files_to_change_version_once.join(' ')} README.md install.sh")
 
     sh!('bundle install')
     sh!('rake install')
@@ -35,4 +36,3 @@ context(branch('master')) {
     git!('commit -m "Bumps Version"')
   }
 }
-

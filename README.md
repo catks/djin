@@ -6,15 +6,22 @@
 
 Djin is a make-like utility for docker containers
 
+## Requirements
+
+* Ruby 2.5 or higher
+
 ## Installation
 
-Djin is distributed as a Ruby Gem, to install simple run:
+### Curl | Bash (Recommended if you use multiple ruby version, with rbenv, rvm, etc)
+    $ curl https://github.com/catks/djin/blob/master/install.sh || env -i bash
 
+### Gem
     $ gem install djin
 
-### With Rbenv
 
-If you use Rbenv you can install djin only once and create an alias in your .basrc, .zshrc, etc:
+### With Rbenv (Manual)
+
+If you use Rbenv and dont want to use the `curl | bash` installation you can install djin only once and create an alias in your .basrc, .zshrc, etc:
 
 #### ZSH
     $ RBENV_VERSION=$(rbenv global) gem install djin && echo "alias djin='RBENV_VERSION=$(rbenv global) djin'" >> ~/.zshrc
@@ -46,6 +53,7 @@ tasks:
       run:
         commands: rspec
         options: "--rm"
+    description: 'Running Tests' # Optional, when none is provided the command will be used as a description
     aliases: # Optional Array of strings
       - rspec
 ```
