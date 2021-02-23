@@ -13,6 +13,10 @@ module Djin
 
           def call(**)
             Executor.new.call(task)
+          # TODO: Extract error handling output (the same logic is used in djin.rb)
+          rescue Djin::TaskError => e
+            error_name = e.class.name.split('::').last
+            abort("[#{error_name}] #{e.message}")
           end
         end
 

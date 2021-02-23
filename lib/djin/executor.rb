@@ -19,12 +19,12 @@ module Djin
         run_task dependent_task
       end
 
-      run task.build_command if task.build_command
-      run task.command if task.command
+      run(task.build_command, task_name: task.name) if task.build_command
+      run(task.command, task_name: task.name) if task.command
     end
 
-    def run(command)
-      system command
+    def run(command, task_name:)
+      raise TaskError, "Task `#{task_name}` failed" unless system(command)
     end
   end
 end

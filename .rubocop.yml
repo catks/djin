@@ -10,4 +10,8 @@ Style/BlockDelimiters:
 Metrics/BlockLength:
   Exclude:
     - spec/**/*
-    - djin.gemspec 
+    - djin.gemspec
+
+Style/RescueModifier:
+  Exclude:
+    - spec/**/*
