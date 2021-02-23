@@ -1,0 +1,33 @@
+djin_version: '0.11.4'
+
+tasks:
+  task1:
+    local:
+      run:
+        - echo 'Task 1 Executed'
+
+  task2:
+    local:
+      run:
+        - echo 'Task 2 Executed'
+
+  task_1_and_2:
+    local:
+      run:
+        - echo 'Executed Both Tasks'
+    depends_on:
+      - task1
+      - task2
+
+  broken:
+    local:
+      run:
+        - echo 'I will break you'
+        - invalid_command_here
+
+  broken_depends:
+    local:
+      run:
+        - echo "I can't reach this"
+    depends_on:
+      - broken

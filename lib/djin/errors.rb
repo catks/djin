@@ -7,4 +7,6 @@ module Djin
   VersionNotSupportedError = Class.new(InvalidConfigurationError)
   InvalidSyntaxError = Class.new(InvalidConfigurationError)
   FileNotFoundError = Class.new(InvalidConfigurationError)
+
+  TaskError = Class.new(StandardError)
 end

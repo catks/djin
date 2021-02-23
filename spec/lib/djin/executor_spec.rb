@@ -7,7 +7,7 @@ RSpec.describe Djin::Executor do
   describe '#call' do
     subject(:call) { instance.call(*tasks) }
 
-    before { allow(instance).to receive(:system) }
+    before { allow(instance).to receive(:system).and_return(true) }
 
     context 'with one task' do
       let(:tasks) { [Djin::Task.new(name: 'test', command: 'echo test')] }
@@ -127,6 +127,18 @@ RSpec.describe Djin::Executor do
             call
 
             expect(instance).to_not have_received(:system).with(tasks.first.command)
+          end
+
+          context 'when a subcommand fail' do
+            before { allow(instance).to receive(:system).with(configured_tasks.first.command).and_return(false) }
+
+            it 'executes the first dependent task' do
+              call rescue Djin::TaskError
+
+              expect(instance).to have_received(:system).with(configured_tasks.first.build_command).once
+              expect(instance).to have_received(:system).with(configured_tasks.first.command).once
+              expect(instance).to have_received(:system).twice
+            end
           end
         end
       end
