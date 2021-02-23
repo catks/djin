@@ -1,4 +1,4 @@
-djin_version: '0.11.4'
+djin_version: '0.11.5'
 
 _default_run_options: &default_run_options
   options: "--rm --entrypoint=''"

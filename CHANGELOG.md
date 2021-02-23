@@ -1,3 +1,6 @@
+## 0.11.5 - 23/02/2021
+ * [FIX] Aborting when dependent task fail
+
 ## 0.11.4 - 12/02/2021
  * [PATCH] Include Config Validations
 

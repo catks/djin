@@ -27,7 +27,7 @@ If you use Rbenv you can install djin only once and create an alias in your .bas
 To use djin first you need to create a djin.yml file:
 
 ```yaml
-djin_version: '0.11.4'
+djin_version: '0.11.5'
 
 tasks:
   # With a docker image
@@ -54,7 +54,7 @@ You can also set task dependencies with depends_on option:
 
 
 ```yaml
-djin_version: '0.11.4'
+djin_version: '0.11.5'
 
 _default_run_options: &default_run_options
   options: "--rm"
@@ -83,7 +83,7 @@ tasks:
 Or mix local commands and docker/docker-compose commands:
 
 ```yaml
-djin_version: '0.11.4'
+djin_version: '0.11.5'
 
 _default_run_options: &default_run_options
   options: "--rm"
@@ -122,7 +122,7 @@ After that you can run `djin {{task_name}}`, like `djin script` or `djin test`
 You can also use environment variables using the '{{YOUR_ENV_HERE}}' syntax, like so:
 
 ```yaml
-djin_version: '0.11.4'
+djin_version: '0.11.5'
 
 _default_run_options: &default_run_options
   options: "--rm"
@@ -139,7 +139,7 @@ tasks:
 
 Or define some variables to use in multiple locations
 ```yaml
-djin_version: '0.11.4'
+djin_version: '0.11.5'
 
 _default_run_options: &default_run_options
   options: "--rm"
@@ -163,7 +163,7 @@ tasks:
 It's also possible to pass custom arguments to the command, which means is possible to make a djin task act like the command itself:
 
 ```yaml
-djin_version: '0.11.4'
+djin_version: '0.11.5'
 
 _default_run_options: &default_run_options
   options: "--rm"
@@ -189,7 +189,7 @@ Under the hood djin uses [Mustache](https://mustache.github.io/), so you can use
 If you have multiple tasks with similar behavior and with small differences you can use the `include` keyword, so this:
 
 ```yaml
-djin_version: '0.11.4'
+djin_version: '0.11.5'
 
 tasks:
   "host1:ssh":
@@ -228,7 +228,7 @@ can become this:
 
 ```yaml
 # djin.yml
-djin_version: '0.11.4'
+djin_version: '0.11.5'
 
 include:
   - file: '.djin/server_tasks.yml'
@@ -250,7 +250,7 @@ include:
 
 ```yaml
 # .djin/server_tasks.yml
-djin_version: '0.11.4'
+djin_version: '0.11.5'
 
 tasks:
   "{{namespace}}:ssh":
@@ -272,7 +272,7 @@ tasks:
 You can also reuse tasks in some git repository, to do that you need to declare a git source and optionally a version:
 
 ```yaml
-djin_version: '0.11.4'
+djin_version: '0.11.5'
 
 include:
   - git: 'https://github.com/catks/djin.git'
