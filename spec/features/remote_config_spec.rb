@@ -18,10 +18,6 @@ RSpec.describe 'remote-config subcommand', type: :feature do
     end
 
     context 'when remote config doenst exists' do
-      before do
-        repo.delete
-      end
-
       it 'clone repository to remote folder' do
         expect {
           _, err = fetch
