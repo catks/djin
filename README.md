@@ -315,10 +315,9 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## TODO
 
-1. Enable multiple -f options to merge configuration between files
-2. Option to export tasks to Makefile
-3. djin-export docker image to create and sync makefiles
-4. include a key option to add tasks in git repositories files (maybe with a local cache)
+1. Option to export tasks to Makefile
+2. djin-export docker image to create and sync makefiles
+
 
 ## Contributing
 
