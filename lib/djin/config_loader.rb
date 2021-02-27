@@ -161,7 +161,7 @@ module Djin
 
       return if file_config.version_supported?
 
-      raise VersionNotSupportedError, "Version #{version} is not supported, use #{Djin::VERSION} or higher"
+      raise VersionNotSupportedError, "Version #{version} is not supported, the current version is #{Djin::VERSION}"
     end
 
     def validate_missing_config!
