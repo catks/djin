@@ -1,3 +1,6 @@
+## 0.11.6 - 26/02/2021
+ * [FIX] Enable ssh and file repositories in include option
+
 ## 0.11.5 - 23/02/2021
  * [FIX] Aborting when dependent task fail
 
