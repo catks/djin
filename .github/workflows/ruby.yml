@@ -20,7 +20,7 @@ jobs:
 
       - name: Build
         run: |
-          docker-compose -p djin_ruby_${{ matrix.ruby }} build --build-arg ${{ matrix.ruby }} app
+          docker-compose -p djin_ruby_${{ matrix.ruby }} build --build-arg RUBY_VERSION=${{ matrix.ruby }} app
 
       - name: Run tests
         run: |
