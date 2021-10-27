@@ -28,9 +28,14 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'dry-cli', '~> 0.6.0'
+  spec.add_dependency 'dry-configurable', '~> 0.9.0'
+  spec.add_dependency 'dry-container', '~> 0.7.0'
+  spec.add_dependency 'dry-core', '~> 0.6.0'
   spec.add_dependency 'dry-equalizer', '~> 0.3.0'
+  spec.add_dependency 'dry-inflector', '~> 0.1.0'
+  spec.add_dependency 'dry-schema', '~> 1.6.0'
   spec.add_dependency 'dry-struct', '~> 1.3.0'
-  spec.add_dependency 'dry-validation', '~> 1.5.1'
+  spec.add_dependency 'dry-validation', '= 1.5.1'
   spec.add_dependency 'git', '~> 1.8.1'
   spec.add_dependency 'mustache', '~> 1.1.1'
   spec.add_dependency 'vseries', '~> 0.1.0'

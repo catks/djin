@@ -4,7 +4,7 @@ on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
         ruby: [ '2.5', '2.6', '2.7' ]
@@ -34,7 +34,7 @@ jobs:
           docker-compose -p djin_ruby_${{ matrix.ruby }} run --rm app 'export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}" && ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}'
 
   lint:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     name: Lint
     steps:
       - uses: actions/checkout@v2
