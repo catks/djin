@@ -50,7 +50,10 @@ module Djin
       @task_repository = TaskRepository.new(tasks)
 
       remote_configs = file_config.include_configs.select { |f| f.type == :remote }
-      @remote_config_repository = RemoteConfigRepository.new(remote_configs)
+
+      remote_configs.each do |config|
+        remote_config_repository.add(config)
+      end
 
       CLI.load_tasks!(tasks)
     rescue Djin::InvalidConfigurationError => e
@@ -67,7 +70,7 @@ module Djin
     end
 
     def remote_config_repository
-      @remote_config_repository ||= RemoteConfigRepository.new
+      @remote_config_repository ||= Vorx::Store.new
     end
 
     def cache

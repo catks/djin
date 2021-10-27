@@ -5,13 +5,15 @@ module Djin
     attr_accessor :base_path
 
     def initialize(remote_configs, base_path: Pathname.new('~/.djin/remote'), stderr: Djin.stderr)
-      @remote_configs = remote_configs
-      @base_path = base_path
-      @stderr = stderr
+      @vorx_store = Vorx::Store.new(base_path.to_s, stderr: stderr)
+
+      remote_configs.each do |remote_config|
+        store_remote_config(remote_config)
+      end
     end
 
     def add(remote_config)
-      remote_configs << remote_config
+      store_remote_config(remote_config)
     end
 
     def find(**filters)
@@ -81,6 +83,19 @@ module Djin
       git_repo.fetch
 
       git_repo
+    end
+
+    private
+
+    def remote_config_to_repository(remote_config)
+      Vorx::GitRepository.new(
+        git: remote_config.git,
+        version: remote_config.version
+      )
+    end
+
+    def store_remote_config(remote_config)
+      @vorx_store.add(remote_config_to_repository(remote_config))
     end
   end
 end
