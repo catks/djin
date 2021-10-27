@@ -1,4 +1,4 @@
-djin_version: '0.11.6'
+djin_version: '0.11.7'
 
 include:
   - git: 'http:gitserver/myrepo.git'

@@ -1,3 +1,8 @@
+## 0.11.7 - 27/10/2021
+ * [FIX] Djin Dependencies
+ * [TECH][FIX] Ruby Versions in CI
+ * [FIX] Version Error Message
+
 ## 0.11.6 - 26/02/2021
  * [FIX] Enable ssh and file repositories in include option
 
