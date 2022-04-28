@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'dry-schema', '~> 1.6.0'
   spec.add_dependency 'dry-struct', '~> 1.3.0'
   spec.add_dependency 'dry-validation', '= 1.5.1'
-  spec.add_dependency 'git', '~> 1.8.1'
+  spec.add_dependency 'git', '>= 1.8.1', '< 1.12.0'
   spec.add_dependency 'mustache', '~> 1.1.1'
   spec.add_dependency 'vseries', '~> 0.1.0'
   spec.add_development_dependency 'bundler', '~> 2.0'
